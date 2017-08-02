@@ -1,0 +1,136 @@
+/*
+ * This file is part of Cleanflight.
+ *
+ * Cleanflight is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cleanflight is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <stdbool.h>
+#include <string.h>
+#include <stdint.h>
+
+#include <platform.h>
+
+#include "drivers/nvic.h"
+#include "dma.h"
+
+/*
+ * DMA descriptors.
+ */
+static dmaChannelDescriptor_t dmaDescriptors[] = {
+#ifdef XMC4500_F100x1024
+	DEFINE_DMA_CHANNEL((XMC_DMA_t*)GPDMA0_CH0, (GPDMA_CH_t*)GPDMA0_CH0,  0, GPDMA0_0_IRQn, 0),
+	DEFINE_DMA_CHANNEL((XMC_DMA_t*)GPDMA0_CH0, (GPDMA_CH_t*)GPDMA0_CH1,  0, GPDMA0_0_IRQn, 0),
+	DEFINE_DMA_CHANNEL((XMC_DMA_t*)GPDMA0_CH0, (GPDMA_CH_t*)GPDMA0_CH2,  0, GPDMA0_0_IRQn, 0),
+	DEFINE_DMA_CHANNEL((XMC_DMA_t*)GPDMA0_CH0, (GPDMA_CH_t*)GPDMA0_CH3,  0, GPDMA0_0_IRQn, 0),
+	DEFINE_DMA_CHANNEL((XMC_DMA_t*)GPDMA0_CH0, (GPDMA_CH_t*)GPDMA0_CH4,  0, GPDMA0_0_IRQn, 0),
+	DEFINE_DMA_CHANNEL((XMC_DMA_t*)GPDMA0_CH0, (GPDMA_CH_t*)GPDMA0_CH5,  0, GPDMA0_0_IRQn, 0),
+	DEFINE_DMA_CHANNEL((XMC_DMA_t*)GPDMA0_CH0, (GPDMA_CH_t*)GPDMA0_CH6,  0, GPDMA0_0_IRQn, 0),
+	DEFINE_DMA_CHANNEL((XMC_DMA_t*)GPDMA0_CH0, (GPDMA_CH_t*)GPDMA0_CH7,  0, GPDMA0_0_IRQn, 0),
+	DEFINE_DMA_CHANNEL((XMC_DMA_t*)GPDMA1_CH0, (GPDMA_CH_t*)GPDMA1_CH0,  0, GPDMA1_0_IRQn, 0),
+	DEFINE_DMA_CHANNEL((XMC_DMA_t*)GPDMA1_CH0, (GPDMA_CH_t*)GPDMA1_CH1,  0, GPDMA1_0_IRQn, 0),
+	DEFINE_DMA_CHANNEL((XMC_DMA_t*)GPDMA1_CH0, (GPDMA_CH_t*)GPDMA1_CH2,  0, GPDMA1_0_IRQn, 0),
+	DEFINE_DMA_CHANNEL((XMC_DMA_t*)GPDMA1_CH0, (GPDMA_CH_t*)GPDMA1_CH3,  0, GPDMA1_0_IRQn, 0),
+#else
+    DEFINE_DMA_CHANNEL(DMA1, DMA1_Channel1,  0, DMA1_Channel1_IRQn, RCC_AHBPeriph_DMA1),
+    DEFINE_DMA_CHANNEL(DMA1, DMA1_Channel2,  4, DMA1_Channel2_IRQn, RCC_AHBPeriph_DMA1),
+    DEFINE_DMA_CHANNEL(DMA1, DMA1_Channel3,  8, DMA1_Channel3_IRQn, RCC_AHBPeriph_DMA1),
+    DEFINE_DMA_CHANNEL(DMA1, DMA1_Channel4, 12, DMA1_Channel4_IRQn, RCC_AHBPeriph_DMA1),
+    DEFINE_DMA_CHANNEL(DMA1, DMA1_Channel5, 16, DMA1_Channel5_IRQn, RCC_AHBPeriph_DMA1),
+    DEFINE_DMA_CHANNEL(DMA1, DMA1_Channel6, 20, DMA1_Channel6_IRQn, RCC_AHBPeriph_DMA1),
+    DEFINE_DMA_CHANNEL(DMA1, DMA1_Channel7, 24, DMA1_Channel7_IRQn, RCC_AHBPeriph_DMA1),
+#if defined(STM32F3) || defined(STM32F10X_CL)
+    DEFINE_DMA_CHANNEL(DMA2, DMA2_Channel1,  0, DMA2_Channel1_IRQn, RCC_AHBPeriph_DMA2),
+    DEFINE_DMA_CHANNEL(DMA2, DMA2_Channel2,  4, DMA2_Channel2_IRQn, RCC_AHBPeriph_DMA2),
+    DEFINE_DMA_CHANNEL(DMA2, DMA2_Channel3,  8, DMA2_Channel3_IRQn, RCC_AHBPeriph_DMA2),
+    DEFINE_DMA_CHANNEL(DMA2, DMA2_Channel4, 12, DMA2_Channel4_IRQn, RCC_AHBPeriph_DMA2),
+    DEFINE_DMA_CHANNEL(DMA2, DMA2_Channel5, 16, DMA2_Channel5_IRQn, RCC_AHBPeriph_DMA2),
+#endif
+#endif
+};
+
+/*
+ * DMA IRQ Handlers
+ */
+DEFINE_DMA_IRQ_HANDLER(1, 1, DMA1_CH1_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(1, 2, DMA1_CH2_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(1, 3, DMA1_CH3_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(1, 4, DMA1_CH4_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(1, 5, DMA1_CH5_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(1, 6, DMA1_CH6_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(1, 7, DMA1_CH7_HANDLER)
+
+#if defined(STM32F3) || defined(STM32F10X_CL)
+DEFINE_DMA_IRQ_HANDLER(2, 1, DMA2_CH1_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(2, 2, DMA2_CH2_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(2, 3, DMA2_CH3_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(2, 4, DMA2_CH4_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(2, 5, DMA2_CH5_HANDLER)
+#elif defined(XMC4500_F100x1024)
+DEFINE_DMA_IRQ_HANDLER(1, 8, DMA1_CH8_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(2, 1, DMA1_CH8_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(2, 2, DMA1_CH8_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(2, 3, DMA1_CH8_HANDLER)
+DEFINE_DMA_IRQ_HANDLER(2, 4, DMA1_CH8_HANDLER)
+#endif
+
+void dmaInit(dmaIdentifier_e identifier, resourceOwner_e owner, uint8_t resourceIndex)
+{
+#ifndef XMC4500_F100x1024
+    RCC_AHBPeriphClockCmd(dmaDescriptors[identifier].rcc, ENABLE);
+#else
+    XMC_DMA_Enable(dmaDescriptors[identifier].dma);
+#endif
+    dmaDescriptors[identifier].owner = owner;
+    dmaDescriptors[identifier].resourceIndex = resourceIndex;
+}
+
+void dmaSetHandler(dmaIdentifier_e identifier, dmaCallbackHandlerFuncPtr callback, uint32_t priority, uint32_t userParam)
+{
+    NVIC_InitTypeDef NVIC_InitStructure;
+
+    /* TODO: remove this - enforce the init */
+#ifndef XMC4500_F100x1024
+    RCC_AHBPeriphClockCmd(dmaDescriptors[identifier].rcc, ENABLE);
+#else
+    XMC_DMA_Enable(dmaDescriptors[identifier].dma);
+#endif
+    dmaDescriptors[identifier].irqHandlerCallback = callback;
+    dmaDescriptors[identifier].userParam = userParam;
+
+    NVIC_InitStructure.NVIC_IRQChannel = dmaDescriptors[identifier].irqN;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = NVIC_PRIORITY_BASE(priority);
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = NVIC_PRIORITY_SUB(priority);
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+}
+
+resourceOwner_e dmaGetOwner(dmaIdentifier_e identifier)
+{
+    return dmaDescriptors[identifier].owner;
+}
+
+uint8_t dmaGetResourceIndex(dmaIdentifier_e identifier)
+{
+    return dmaDescriptors[identifier].resourceIndex;
+}
+
+dmaIdentifier_e dmaGetIdentifier(const DMA_Channel_TypeDef* channel)
+{
+    for (int i = 0; i < DMA_MAX_DESCRIPTORS; i++) {
+        if (dmaDescriptors[i].ref == channel) {
+            return i;
+        }
+    }
+    return 0;
+}
