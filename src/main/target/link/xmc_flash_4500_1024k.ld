@@ -184,18 +184,18 @@ SECTIONS
     __bss3_size = __bss3_end - __bss3_start;
     
     .pg_registry :
-  	{
-    	PROVIDE_HIDDEN (__pg_registry_start = .);
-    	KEEP (*(.pg_registry))
-    	KEEP (*(SORT(.pg_registry.*)))
-    	PROVIDE_HIDDEN (__pg_registry_end = .);
-  	} >FLASH_0_cached
-  	.pg_resetdata :
-  	{
-    	PROVIDE_HIDDEN (__pg_resetdata_start = .);
-    	KEEP (*(.pg_resetdata))
-    	PROVIDE_HIDDEN (__pg_resetdata_end = .);
-  	} >FLASH_0_cached
+    {
+        PROVIDE_HIDDEN (__pg_registry_start = .);
+        KEEP (*(.pg_registry))
+        KEEP (*(SORT(.pg_registry.*)))
+        PROVIDE_HIDDEN (__pg_registry_end = .);
+    } >FLASH_0_cached
+    .pg_resetdata :
+    {
+        PROVIDE_HIDDEN (__pg_resetdata_start = .);
+        KEEP (*(.pg_resetdata))
+        PROVIDE_HIDDEN (__pg_resetdata_end = .);
+    } >FLASH_0_cached
     
     /* Standard DATA and user defined DATA/BSS/CONST sections */
     .data : 
