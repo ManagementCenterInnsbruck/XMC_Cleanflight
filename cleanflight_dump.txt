@@ -1,0 +1,60 @@
+# version
+# Cleanflight / RacecopterXMC 2.1.0 Aug 16 2017 / 13:46:13 (1.0)
+
+# name
+
+# mixer
+mixer CUSTOM
+mmix 0  1.000 -1.000  1.000 -1.000
+mmix 1  1.000 -1.000 -1.000  1.000
+mmix 2  1.000  1.000 -1.000 -1.000
+mmix 3  1.000  1.000  1.000  1.000
+
+# feature
+feature -RX_PARALLEL_PWM
+feature RX_SERIAL
+
+# map
+map TAER1234
+
+# serial
+serial 1 64 115200 57600 0 115200
+
+# aux
+aux 0 1 0 900 2100
+aux 1 3 0 1600 2000
+
+# adjrange
+
+# rxrange
+
+# rxfail
+
+# master
+set baro_hardware = AUTO
+set min_check = 1150
+set max_check = 1800
+set serialrx_provider = SPEK2048
+set min_throttle = 1100
+set motor_pwm_protocol = OFF
+set align_board_yaw = 225
+set deadband = 3
+set yaw_deadband = 3
+
+# profile
+profile 0
+
+set p_pitch = 40
+set i_pitch = 40
+set d_pitch = 30
+set p_yaw = 60
+set p_alt = 40
+set i_alt = 10
+set d_alt = 15
+set p_level = 40
+
+# rateprofile
+rateprofile 0
+
+
+save
