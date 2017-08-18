@@ -31,6 +31,8 @@
 #include "drivers/barometer/barometer_bmp280.h"
 #include "drivers/barometer/barometer_fake.h"
 #include "drivers/barometer/barometer_ms5611.h"
+#include "drivers/barometer/barometer_dps310.h"
+
 
 #include "fc/runtime_config.h"
 
