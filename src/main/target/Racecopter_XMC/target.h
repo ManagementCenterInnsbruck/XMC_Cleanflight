@@ -9,11 +9,12 @@
 #define LED2					P30
 #define LED2_INVERTED
 
-#define SERIAL_PORT_COUNT       3
+#define SERIAL_PORT_COUNT       4
 
 #define USE_VCP
 #define USE_UART1
 #define USE_UART2
+#define USE_UART3
 
 #define USE_I2C
 #define USE_I2C_DEVICE_1
