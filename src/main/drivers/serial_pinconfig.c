@@ -104,6 +104,7 @@
 #endif // STM32F3
 
 #ifdef XMC4500_F100x1024
+
 #ifdef USE_UART1
 #ifndef UART1_TX_PIN
 #define UART1_TX_PIN        P51
@@ -121,6 +122,16 @@
 #define UART2_RX_PIN        P04
 #endif
 #endif
+
+#ifdef USE_UART3
+#ifndef UART3_TX_PIN
+#define UART3_TX_PIN        P35
+#endif
+#ifndef UART3_RX_PIN
+#define UART3_RX_PIN        P40
+#endif
+#endif
+
 #endif
 
 // Default pin (NONE).

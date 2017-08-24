@@ -126,8 +126,23 @@ void uartReconfigure(uartPort_t *uartPort)
     };
     XMC_UART_CH_Init((XMC_USIC_CH_t*)uartPort->USARTx, &uart_config);
     XMC_USIC_CH_SetInputSource((XMC_USIC_CH_t*)uartPort->USARTx, XMC_USIC_CH_INPUT_DX0, uartPort->input_source);
-    XMC_USIC_CH_TXFIFO_Configure((XMC_USIC_CH_t*)uartPort->USARTx, 0, XMC_USIC_CH_FIFO_SIZE_16WORDS, 1);
-    XMC_USIC_CH_RXFIFO_Configure((XMC_USIC_CH_t*)uartPort->USARTx, 16, XMC_USIC_CH_FIFO_SIZE_16WORDS, 0);
+
+    switch((uint32_t)uartPort->USARTx)
+    {
+		case (uint32_t)USIC0_CH0:
+		case (uint32_t)USIC1_CH0:
+		case (uint32_t)USIC2_CH0:
+		    XMC_USIC_CH_TXFIFO_Configure((XMC_USIC_CH_t*)uartPort->USARTx, 0, XMC_USIC_CH_FIFO_SIZE_16WORDS, 1);
+		    XMC_USIC_CH_RXFIFO_Configure((XMC_USIC_CH_t*)uartPort->USARTx, 16, XMC_USIC_CH_FIFO_SIZE_16WORDS, 0);
+			break;
+		case (uint32_t)USIC0_CH1:
+		case (uint32_t)USIC1_CH1:
+		case (uint32_t)USIC2_CH1:
+		    XMC_USIC_CH_TXFIFO_Configure((XMC_USIC_CH_t*)uartPort->USARTx, 32, XMC_USIC_CH_FIFO_SIZE_16WORDS, 1);
+		    XMC_USIC_CH_RXFIFO_Configure((XMC_USIC_CH_t*)uartPort->USARTx, 48, XMC_USIC_CH_FIFO_SIZE_16WORDS, 0);
+			break;
+    }
+
     usartConfigurePinInversion(uartPort);
 
     XMC_UART_CH_Start((XMC_USIC_CH_t*)uartPort->USARTx);
@@ -264,7 +279,7 @@ serialPort_t *uartOpen(UARTDevice device, serialReceiveCallbackPtr rxCallback, u
 
     USART_Cmd(s->USARTx, ENABLE);
 #else
-    //uartDevice_t *uartDev = uartDevmap[device];
+    uartDevice_t *uartDev = uartDevmap[device];
 
     if (mode & MODE_RX)
     {
@@ -274,8 +289,45 @@ serialPort_t *uartOpen(UARTDevice device, serialReceiveCallbackPtr rxCallback, u
          }
          else
          {
-        	 XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 1);
-        	 XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 1);
+        	 switch(uartDev->hardware->irqn_rx)
+        	 {
+        	 	case USIC0_0_IRQn:
+        	 	case USIC1_0_IRQn:
+        	 	case USIC2_0_IRQn:
+        	 		XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 0);
+        	 		XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 0);
+        	 		break;
+        	 	case USIC0_1_IRQn:
+        	 	case USIC1_1_IRQn:
+        	 	case USIC2_1_IRQn:
+        	 		XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 1);
+        	 		XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 1);
+        	 		break;
+        	 	case USIC0_2_IRQn:
+        	 	case USIC1_2_IRQn:
+        	 	case USIC2_2_IRQn:
+        	 		XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 2);
+        	 		XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 2);
+        	 		break;
+        	 	case USIC0_3_IRQn:
+        	 	case USIC1_3_IRQn:
+        	 	case USIC2_3_IRQn:
+        	 		XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 3);
+        	 		XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 3);
+        	 		break;
+        	 	case USIC0_4_IRQn:
+        	 	case USIC1_4_IRQn:
+        	 	case USIC2_4_IRQn:
+        	 		XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 4);
+        	 		XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 4);
+        	 		break;
+        	 	case USIC0_5_IRQn:
+        	 	case USIC1_5_IRQn:
+        	 	case USIC2_5_IRQn:
+        	 		XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 5);
+        	 		XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 5);
+        	 		break;
+        	 }
         	 XMC_USIC_CH_RXFIFO_EnableEvent((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_RXFIFO_EVENT_CONF_STANDARD | XMC_USIC_CH_RXFIFO_EVENT_CONF_ALTERNATE);
          }
      }
@@ -289,7 +341,40 @@ serialPort_t *uartOpen(UARTDevice device, serialReceiveCallbackPtr rxCallback, u
          }
          else
          {
-        	 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 0);
+        	 switch(uartDev->hardware->irqn_rx)
+        	 {
+        	 	case USIC0_0_IRQn:
+        	 	case USIC1_0_IRQn:
+        	 	case USIC2_0_IRQn:
+               	 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 0);
+        	 		break;
+        	 	case USIC0_1_IRQn:
+        	 	case USIC1_1_IRQn:
+        	 	case USIC2_1_IRQn:
+               	 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 1);
+        	 		break;
+        	 	case USIC0_2_IRQn:
+        	 	case USIC1_2_IRQn:
+        	 	case USIC2_2_IRQn:
+               	 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 2);
+        	 		break;
+        	 	case USIC0_3_IRQn:
+        	 	case USIC1_3_IRQn:
+        	 	case USIC2_3_IRQn:
+               	 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 3);
+        	 		break;
+        	 	case USIC0_4_IRQn:
+        	 	case USIC1_4_IRQn:
+        	 	case USIC2_4_IRQn:
+               	 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 4);
+        	 		break;
+        	 	case USIC0_5_IRQn:
+        	 	case USIC1_5_IRQn:
+        	 	case USIC2_5_IRQn:
+               	 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 5);
+        	 		break;
+        	 }
+
         	 XMC_USIC_CH_TXFIFO_EnableEvent((XMC_USIC_CH_t*)s->USARTx, XMC_USIC_CH_TXFIFO_EVENT_CONF_STANDARD);
          }
      }

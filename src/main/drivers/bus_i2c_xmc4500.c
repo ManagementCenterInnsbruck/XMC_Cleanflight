@@ -103,8 +103,21 @@ void i2cInit(I2CDevice device)
     XMC_USIC_CH_SetInputSource((XMC_USIC_CH_t*)I2Cx, XMC_USIC_CH_INPUT_DX0, pDev->source_sda);
     XMC_USIC_CH_SetInputSource((XMC_USIC_CH_t*)I2Cx, XMC_USIC_CH_INPUT_DX1, pDev->source_scl);
 
-	XMC_USIC_CH_TXFIFO_Configure((XMC_USIC_CH_t*)I2Cx, 0 + (32 * device), XMC_USIC_CH_FIFO_SIZE_16WORDS, 1);
-	XMC_USIC_CH_RXFIFO_Configure((XMC_USIC_CH_t*)I2Cx, 16 + (32 * device), XMC_USIC_CH_FIFO_SIZE_16WORDS, 0);
+    switch((uint32_t)I2Cx)
+    {
+		case (uint32_t)USIC0_CH0:
+		case (uint32_t)USIC1_CH0:
+		case (uint32_t)USIC2_CH0:
+		    XMC_USIC_CH_TXFIFO_Configure((XMC_USIC_CH_t*)I2Cx, 0, XMC_USIC_CH_FIFO_SIZE_16WORDS, 1);
+		    XMC_USIC_CH_RXFIFO_Configure((XMC_USIC_CH_t*)I2Cx, 16, XMC_USIC_CH_FIFO_SIZE_16WORDS, 0);
+			break;
+		case (uint32_t)USIC0_CH1:
+		case (uint32_t)USIC1_CH1:
+		case (uint32_t)USIC2_CH1:
+		    XMC_USIC_CH_TXFIFO_Configure((XMC_USIC_CH_t*)I2Cx, 32, XMC_USIC_CH_FIFO_SIZE_16WORDS, 1);
+		    XMC_USIC_CH_RXFIFO_Configure((XMC_USIC_CH_t*)I2Cx, 48, XMC_USIC_CH_FIFO_SIZE_16WORDS, 0);
+			break;
+    }
 
     XMC_I2C_CH_Start((XMC_USIC_CH_t*)I2Cx);
 

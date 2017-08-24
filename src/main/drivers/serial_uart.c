@@ -295,11 +295,25 @@ void USART2_IRQHandler(void)
 
 #ifdef USE_UART3
 // USART3 Rx/Tx IRQ Handler
+#ifdef XMC4500_F100x1024
+void USIC2_2_IRQHandler()
+{
+	uartPort_t *s = &(uartDevmap[UARTDEV_3]->port);
+	uartTxIrqHandler(s);
+}
+
+void USIC2_3_IRQHandler()
+{
+	uartPort_t *s = &(uartDevmap[UARTDEV_3]->port);
+	uartRxIrqHandler(s);
+}
+#else
 void USART3_IRQHandler(void)
 {
     uartPort_t *s = &(uartDevmap[UARTDEV_3]->port);
     uartIrqHandler(s);
 }
+#endif
 #endif
 
 #ifdef USE_UART4

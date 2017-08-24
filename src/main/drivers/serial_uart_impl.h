@@ -57,7 +57,7 @@
 #endif
 #elif defined(XMC4500_F100x1024)
 #include "dma.h"
-#define UARTDEV_COUNT_MAX 2
+#define UARTDEV_COUNT_MAX 3
 #define UARTHARDWARE_MAX_PINS 4
 #ifndef UART_RX_BUFFER_SIZE
 #define UART_RX_BUFFER_SIZE     512
