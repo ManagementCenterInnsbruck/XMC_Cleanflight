@@ -225,7 +225,42 @@ void uartWrite(serialPort_t *instance, uint8_t ch)
 
     }
     else
-    	XMC_USIC_CH_TriggerServiceRequest((XMC_USIC_CH_t*)s->USARTx, 0);
+    {
+    	uartDevice_t *uartDev = uartDevmap[instance->identifier];
+		switch (uartDev->hardware->irqn_tx)
+		{
+			case USIC0_0_IRQn:
+			case USIC1_0_IRQn:
+			case USIC2_0_IRQn:
+				XMC_USIC_CH_TriggerServiceRequest((XMC_USIC_CH_t*)s->USARTx, 0);
+				break;
+			case USIC0_1_IRQn:
+			case USIC1_1_IRQn:
+			case USIC2_1_IRQn:
+				XMC_USIC_CH_TriggerServiceRequest((XMC_USIC_CH_t*)s->USARTx, 1);
+				break;
+			case USIC0_2_IRQn:
+			case USIC1_2_IRQn:
+			case USIC2_2_IRQn:
+				XMC_USIC_CH_TriggerServiceRequest((XMC_USIC_CH_t*)s->USARTx, 2);
+				break;
+			case USIC0_3_IRQn:
+			case USIC1_3_IRQn:
+			case USIC2_3_IRQn:
+				XMC_USIC_CH_TriggerServiceRequest((XMC_USIC_CH_t*)s->USARTx, 3);
+				break;
+			case USIC0_4_IRQn:
+			case USIC1_4_IRQn:
+			case USIC2_4_IRQn:
+				XMC_USIC_CH_TriggerServiceRequest((XMC_USIC_CH_t*)s->USARTx, 4);
+				break;
+			case USIC0_5_IRQn:
+			case USIC1_5_IRQn:
+			case USIC2_5_IRQn:
+				XMC_USIC_CH_TriggerServiceRequest((XMC_USIC_CH_t*)s->USARTx, 5);
+				break;
+		}
+    }
 
 #endif
 }
