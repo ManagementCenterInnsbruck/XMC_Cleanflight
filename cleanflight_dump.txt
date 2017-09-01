@@ -1,10 +1,9 @@
 # version
-# Cleanflight / RacecopterXMC 2.1.0 Aug 16 2017 / 13:46:13 (1.0)
+# Cleanflight / RacecopterXMC 2.1.0 Aug 31 2017 / 10:12:10 (1.0)
 
 # name
 
 # mixer
-mixer CUSTOM
 mmix 0  1.000 -1.000  1.000 -1.000
 mmix 1  1.000 -1.000 -1.000  1.000
 mmix 2  1.000  1.000 -1.000 -1.000
@@ -47,14 +46,13 @@ profile 0
 set p_pitch = 40
 set i_pitch = 40
 set d_pitch = 30
-set p_yaw = 60
-set p_alt = 40
-set i_alt = 10
-set d_alt = 15
+set p_yaw = 40
 set p_level = 40
+set p_vel = 100
+set i_vel = 0
+set d_vel = 20
 
 # rateprofile
 rateprofile 0
-
 
 save

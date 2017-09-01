@@ -48,11 +48,11 @@ baro_t baro;                        // barometer access functions
 PG_REGISTER_WITH_RESET_TEMPLATE(barometerConfig_t, barometerConfig, PG_BAROMETER_CONFIG, 0);
 
 PG_RESET_TEMPLATE(barometerConfig_t, barometerConfig,
-    .baro_hardware = 1,
-    .baro_sample_count = 21,
+    .baro_hardware = BARO_DPS310,
+    .baro_sample_count = 20,
     .baro_noise_lpf = 600,
-    .baro_cf_vel = 985,
-    .baro_cf_alt = 965
+    .baro_cf_vel = 968,
+    .baro_cf_alt = 987
 );
 
 #ifdef BARO
@@ -210,6 +210,14 @@ bool isBaroReady(void) {
 
 uint32_t baroUpdate(void)
 {
+#ifdef USE_BARO_DPS310_BACKGROUND
+	baro.dev.get_ut();
+	baro.dev.get_up();
+	baro.dev.calculate(&baroPressure, &baroTemperature);
+	baroPressureSum = recalculateBarometerTotal(barometerConfig()->baro_sample_count, baroPressureSum, baroPressure);
+	return 0;
+
+#else
     static barometerState_e state = BAROMETER_NEEDS_SAMPLES;
 
     switch (state) {
@@ -230,6 +238,7 @@ uint32_t baroUpdate(void)
             return baro.dev.ut_delay;
         break;
     }
+#endif
 }
 
 int32_t baroCalculateAltitude(void)
