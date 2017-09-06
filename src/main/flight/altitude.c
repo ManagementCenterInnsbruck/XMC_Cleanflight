@@ -72,14 +72,6 @@ static int32_t errorVelocityI = 0;
 static int32_t altHoldThrottleAdjustment = 0;
 static int16_t initialThrottleHold;
 
-//just for debugging global variable micrium
-static float accAlt = 0.0f;
-static int32_t Alt_Debug_Var1 = 0;
-static int32_t Alt_Debug_Var2 = 0;
-static int32_t Alt_Debug_Var3 = 0;
-static int32_t Alt_Debug_Var4 = 0;
-static int32_t Alt_Debug_Var5 = 0;
-
 // 40hz update rate (20hz LPF on acc)
 #define BARO_UPDATE_FREQUENCY_40HZ (1000 * 25)
 
@@ -215,7 +207,6 @@ int32_t calculateAltHoldThrottleAdjustment(int32_t vel_tmp, float accZ_tmp, floa
     {
         error = constrain(AltHold - estimatedAltitude, -500, 500);
         error = applyDeadband(error, 5); // remove small P parameter to reduce noise near zero position
-        Alt_Debug_Var1 = error;
         setVel = constrain((currentPidProfile->pid[PID_ALT].P * error / 128), -100, +100); // limit velocity to +/- 1 m/s
 
     }
@@ -223,24 +214,19 @@ int32_t calculateAltHoldThrottleAdjustment(int32_t vel_tmp, float accZ_tmp, floa
     {
         setVel = setVelocity;
     }
-    Alt_Debug_Var2 = setVel;
     // Velocity PID-Controller
 
     // P
     error = setVel - vel_tmp;
-    Alt_Debug_Var3 = error;
     result = constrain((currentPidProfile->pid[PID_VEL].P * error / 32), -300, +300);
 
     // I
     errorVelocityI += (currentPidProfile->pid[PID_VEL].I * error);
     errorVelocityI = constrain(errorVelocityI, -(8192 * 200), (8192 * 200));
-    Alt_Debug_Var5 = (int32_t)errorVelocityI / 8192;
     result += (int32_t)errorVelocityI / 8192;     // I in range +/-200
 
     // D
     result -= constrain(currentPidProfile->pid[PID_VEL].D * (accZ_tmp + accZ_old) / 512, -150, 150);
-
-    Alt_Debug_Var4 = result;
 
     return result;
 }
@@ -256,7 +242,7 @@ void calculateEstimatedAltitude(timeUs_t currentTimeUs)
     previousTimeUs = currentTimeUs;
 
     static float vel = 0.0f;
-    //static float accAlt = 0.0f;
+    static float accAlt = 0.0f;
 
     int32_t baroAlt = 0;
 #ifdef BARO
