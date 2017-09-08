@@ -36,6 +36,9 @@
 #define USE_BARO_DPS310
 #define USE_BARO_DPS310_BACKGROUND
 
+#define RADAR
+#define USE_RADAR_DISTANCE2GO
+
 #define USE_SERIALRX_JETIEXBUS
 
 #define TARGET_IO_PORT0         0xffff

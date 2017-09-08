@@ -37,8 +37,9 @@
 #include "sensors/compass.h"
 #include "sensors/sonar.h"
 #include "sensors/initialisation.h"
+#include "sensors/radar.h"
 
-uint8_t detectedSensors[SENSOR_INDEX_COUNT] = { GYRO_NONE, ACC_NONE, BARO_NONE, MAG_NONE };
+uint8_t detectedSensors[SENSOR_INDEX_COUNT] = { GYRO_NONE, ACC_NONE, BARO_NONE, MAG_NONE, RADAR_NONE };
 
 
 #ifdef SONAR
@@ -75,6 +76,10 @@ bool sensorsAutodetect(void)
     if (sonarDetect()) {
         sonarInit(sonarConfig());
     }
+#endif
+
+#ifdef RADAR
+    radarDetect();
 #endif
 
     return true;
