@@ -19,11 +19,8 @@
 
 radar_t radar;
 
-
-
 static volatile bool radarFrameComplete = false;
 static volatile uint8_t radarFrame[RADAR_FRAME_SIZE_MAX];
-
 
 static serialPort_t *radarSerialPort;
 
@@ -32,6 +29,7 @@ void radarUpdate(timeUs_t currentTimeUs) {
 
     if (radarFrameComplete) {
     	radar.radarDistance = radar.dev.getDistance(&radarFrame[0]);
+    	radar.radarDistance = constrain(radar.radarDistance, 0, radar.radarMaxRangeCm);
     	radar.radarVelocity = radar.dev.getVelocity(&radarFrame[0]);
     	debug[0] = (int16_t) radar.radarDistance;
     	radarFrameComplete = false;
@@ -80,7 +78,6 @@ bool radarDetect(void) {
 	#ifdef USE_RADAR_SENSE2GO
 	        if (radarSense2GoInit(&radar)) {
 	            radarHardware = RADAR_SENSE2GO;
-	            break;
 	        }
 	#endif
 

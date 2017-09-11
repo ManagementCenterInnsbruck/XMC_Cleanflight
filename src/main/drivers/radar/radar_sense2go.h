@@ -23,49 +23,13 @@
 #include "string.h"
 #include "platform.h"
 #include "common/maths.h"
-
-
-typedef int32_t (*radarOpFuncPtr)(volatile uint8_t *radarFrame);
-
-typedef struct radarDev_s {
-	uint8_t frameSize;
-	uint32_t baudRate;
-	radarOpFuncPtr getDistance;
-	radarOpFuncPtr getVelocity;
-}radarDev_t;
-
-typedef struct radar_s {
-	radarDev_t dev;
-	uint16_t radarDistance;
-	int32_t radarMaxRangeCm;
-	int32_t radarVelocity;
-	uint16_t radarDetectionConeDecidegrees;
-}radar_t;
-
-
-typedef enum {
-    RADAR_DEFAULT = 0,
-    RADAR_NONE = 1,
-    RADAR_DISTANCE2GO = 2,
-    RADAR_SENSE2GO = 3,
-} radarSensor_e;
-
-
-
-#include "drivers/serial.h"
-#include "drivers/time.h"
-#include "io/serial.h"
-#include "fc/runtime_config.h"
-#include "build/debug.h"
-
-#include "drivers/radar/radar_distance2go.h"
-#include "drivers/radar/radar_sense2go.h"
 #include "sensors/sensors.h"
+#include "sensors/radar.h"
 
-#define RADAR_FRAME_SIZE_MAX (20+2)  //20 databytes + 2 Headerbytes
-#define RADAR_TIMEOUT 5000
+#define RADAR_SENSE2GO_FRAMSIZE 						4
+#define RADAR_SENSE2GO_BAUDRATE 						115200
+#define RADAR_SENSE2GO_MAX_RANGE_CM 					500
+#define RADAR_SENSE2GO_DETECTION_CONE_DECIDEGREES 		300
 
-bool radarDetect(void);
-void radarUpdate(timeUs_t currentTimeUs);
 
-
+bool radarSense2GoInit(radar_t *radar);

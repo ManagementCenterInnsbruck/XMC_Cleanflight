@@ -15,57 +15,26 @@
  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "radar_sense2go.h"
 
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include "string.h"
-#include "platform.h"
-#include "common/maths.h"
+static int32_t radarSense2GoGetDistance(volatile uint8_t *radarFrame);
+static int32_t radarSense2GoGetVelocity(volatile uint8_t *radarFrame);
 
+bool radarSense2GoInit(radar_t *radar) {
+	radar->dev.baudRate = RADAR_SENSE2GO_BAUDRATE;
+	radar->dev.frameSize = RADAR_SENSE2GO_FRAMSIZE;
+	radar->dev.getDistance = radarSense2GoGetDistance;
+	radar->dev.getVelocity = radarSense2GoGetVelocity;
+	radar->radarDetectionConeDecidegrees = RADAR_SENSE2GO_DETECTION_CONE_DECIDEGREES;
+	radar->radarMaxRangeCm = RADAR_SENSE2GO_MAX_RANGE_CM;
 
-typedef int32_t (*radarOpFuncPtr)(volatile uint8_t *radarFrame);
+	return true;
+}
 
-typedef struct radarDev_s {
-	uint8_t frameSize;
-	uint32_t baudRate;
-	radarOpFuncPtr getDistance;
-	radarOpFuncPtr getVelocity;
-}radarDev_t;
+static int32_t radarSense2GoGetDistance(volatile uint8_t *radarFrame) {
+	return (int32_t) radarFrame[1] << 8 | radarFrame[2];
+}
 
-typedef struct radar_s {
-	radarDev_t dev;
-	uint16_t radarDistance;
-	int32_t radarMaxRangeCm;
-	int32_t radarVelocity;
-	uint16_t radarDetectionConeDecidegrees;
-}radar_t;
-
-
-typedef enum {
-    RADAR_DEFAULT = 0,
-    RADAR_NONE = 1,
-    RADAR_DISTANCE2GO = 2,
-    RADAR_SENSE2GO = 3,
-} radarSensor_e;
-
-
-
-#include "drivers/serial.h"
-#include "drivers/time.h"
-#include "io/serial.h"
-#include "fc/runtime_config.h"
-#include "build/debug.h"
-
-#include "drivers/radar/radar_distance2go.h"
-#include "drivers/radar/radar_sense2go.h"
-#include "sensors/sensors.h"
-
-#define RADAR_FRAME_SIZE_MAX (20+2)  //20 databytes + 2 Headerbytes
-#define RADAR_TIMEOUT 5000
-
-bool radarDetect(void);
-void radarUpdate(timeUs_t currentTimeUs);
-
-
+static int32_t radarSense2GoGetVelocity(volatile uint8_t *radarFrame) {
+	return 0;
+}

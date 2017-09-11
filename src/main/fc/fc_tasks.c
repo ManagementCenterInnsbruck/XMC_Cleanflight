@@ -492,7 +492,7 @@ cfTask_t cfTasks[TASK_COUNT] = {
     [TASK_RADAR] = {
         .taskName = "RADAR",
         .taskFunc = radarUpdate,
-        .desiredPeriod = TASK_PERIOD_MS(50),        // 70ms required so that SONAR pulses do not interfere with each other
+        .desiredPeriod = TASK_PERIOD_HZ(40),
         .staticPriority = TASK_PRIORITY_MEDIUM,
     },
 #endif
