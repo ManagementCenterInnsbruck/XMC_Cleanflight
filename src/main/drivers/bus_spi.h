@@ -55,6 +55,11 @@ typedef enum {
     SPI_CLOCK_STANDARD      = 16,  //06.57500 MHz
     SPI_CLOCK_FAST          = 4,   //27.00000 MHz
     SPI_CLOCK_ULTRAFAST     = 2    //54.00000 MHz
+#elif defined(XMC4500_F100x1024)
+    SPI_CLOCK_SLOW          = 240, //00.50000 MHz
+    SPI_CLOCK_STANDARD      = 20,  //06.00000 MHz
+    SPI_CLOCK_FAST          = 4,   //30.00000 MHz
+    SPI_CLOCK_ULTRAFAST     = 2    //60.00000 MHz
 #else
     SPI_CLOCK_SLOW          = 128, //00.56250 MHz
     SPI_CLOCK_STANDARD      = 4,   //09.00000 MHz
@@ -77,8 +82,16 @@ typedef struct SPIDevice_s {
     ioTag_t sck;
     ioTag_t mosi;
     ioTag_t miso;
+#ifndef XMC4500_F100x1024
     rccPeriphTag_t rcc;
     uint8_t af;
+#else
+    uint8_t af_clk;
+    uint8_t af_mosi;
+    uint8_t af_nss;
+    uint8_t miso_source;
+    XMC_SPI_CH_SLAVE_SELECT_t en_nss;
+#endif
     volatile uint16_t errorCount;
     bool leadingEdge;
 #if defined(STM32F7)

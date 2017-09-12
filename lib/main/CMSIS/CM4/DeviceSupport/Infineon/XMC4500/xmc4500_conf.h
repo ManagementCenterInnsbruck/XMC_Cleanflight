@@ -10,6 +10,7 @@
 #include "xmc_dma.h"
 #include "xmc_i2c.h"
 #include "xmc_uart.h"
+#include "xmc_spi.h"
 #include "xmc_ccu4.h"
 #include "xmc_ccu8.h"
 #include "xmc_flash.h"
