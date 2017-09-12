@@ -470,8 +470,8 @@ cfTask_t cfTasks[TASK_COUNT] = {
     [TASK_BARO] = {
         .taskName = "BARO",
         .taskFunc = taskUpdateBaro,
-        .desiredPeriod = TASK_PERIOD_HZ(20),
-        .staticPriority = TASK_PRIORITY_LOW,
+        .desiredPeriod = TASK_PERIOD_HZ(100),
+        .staticPriority = TASK_PRIORITY_MEDIUM,
     },
 #endif
 
