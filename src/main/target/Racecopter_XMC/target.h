@@ -2,11 +2,11 @@
 
 #define TARGET_BOARD_IDENTIFIER "MCIR" // MCI Racecopter
 
-#define LED0					P09
+#define LED0					P110
 #define LED0_INVERTED
-#define LED1					P32
+#define LED1					P111
 #define LED1_INVERTED
-#define LED2					P30
+#define LED2					P112
 #define LED2_INVERTED
 
 #define SERIAL_PORT_COUNT       4
@@ -22,8 +22,14 @@
 #define I2C_DEVICE 				(I2CDEV_1)
 #define BARO_I2C_INSTANCE 		(I2CDEV_2)
 
+#define USE_SPI
+#define USE_SPI_DEVICE_1
+
 #define GYRO
 #define USE_GYRO_MPU6500
+#define USE_GYRO_SPI_MPU9250
+#define MPU9250_CS_PIN          P02
+#define MPU9250_SPI_INSTANCE    USIC1_CH1
 
 #define ACC
 #define USE_ACC_MPU6500
