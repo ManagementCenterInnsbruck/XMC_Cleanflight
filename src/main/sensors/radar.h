@@ -26,17 +26,19 @@
 
 
 typedef int32_t (*radarOpFuncPtr)(volatile uint8_t *radarFrame);
+typedef bool (*radarCheckFuncPtr)(volatile uint8_t *radarFrame);
 
 typedef struct radarDev_s {
 	uint8_t frameSize;
 	uint32_t baudRate;
 	radarOpFuncPtr getDistance;
 	radarOpFuncPtr getVelocity;
+	radarCheckFuncPtr isDataValid;
 }radarDev_t;
 
 typedef struct radar_s {
 	radarDev_t dev;
-	uint16_t radarDistance;
+	uint32_t radarDistance;
 	int32_t radarMaxRangeCm;
 	int32_t radarVelocity;
 	uint16_t radarDetectionConeDecidegrees;
@@ -50,8 +52,6 @@ typedef enum {
     RADAR_SENSE2GO = 3,
 } radarSensor_e;
 
-
-
 #include "drivers/serial.h"
 #include "drivers/time.h"
 #include "io/serial.h"
@@ -63,7 +63,8 @@ typedef enum {
 #include "sensors/sensors.h"
 
 #define RADAR_FRAME_SIZE_MAX (20+2)  //20 databytes + 2 Headerbytes
-#define RADAR_TIMEOUT 5000
+#define RADAR_FRAME_BEGIN_BYTE 0xAA
+#define RADAR_FRAME_STOP_BYTE  0xBB
 
 bool radarDetect(void);
 void radarUpdate(timeUs_t currentTimeUs);

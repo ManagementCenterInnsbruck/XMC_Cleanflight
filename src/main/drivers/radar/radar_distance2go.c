@@ -19,12 +19,14 @@
 
 static int32_t radarDistance2GoGetDistance(volatile uint8_t *radarFrame);
 static int32_t radarDistance2GoGetVelocity(volatile uint8_t *radarFrame);
+static bool radarDistance2GoIsDataValid(volatile uint8_t *radarFrame);
 
 bool radarDistance2GoInit(radar_t *radar) {
 	radar->dev.baudRate = RADAR_DISTANCE2GO_BAUDRATE;
-	radar->dev.frameSize = RADAR_DISTANCE2GO_FRAMSIZE;
+	radar->dev.frameSize = RADAR_DISTANCE2GO_FRAMESIZE;
 	radar->dev.getDistance = radarDistance2GoGetDistance;
 	radar->dev.getVelocity = radarDistance2GoGetVelocity;
+	radar->dev.isDataValid = radarDistance2GoIsDataValid;
 	radar->radarDetectionConeDecidegrees = RADAR_DISTANCE2GO_DETECTION_CONE_DECIDEGREES;
 	radar->radarMaxRangeCm = RADAR_DISTANCE2GO_MAX_RANGE_CM;
 
@@ -39,4 +41,13 @@ static int32_t radarDistance2GoGetVelocity(volatile uint8_t *radarFrame) {
 	return 0;
 }
 
+static bool radarDistance2GoIsDataValid(volatile uint8_t *radarFrame) {
+
+	if (radarFrame[RADAR_DISTANCE2GO_FRAMESIZE-1] != RADAR_FRAME_STOP_BYTE)
+	{
+		return false;
+	}
+
+	return true;
+}
 

@@ -18,6 +18,7 @@
 #include "radar.h"
 
 radar_t radar;
+uint32_t radarTimeNeededPerFrame = 0;
 
 static volatile bool radarFrameComplete = false;
 static volatile uint8_t radarFrame[RADAR_FRAME_SIZE_MAX];
@@ -31,31 +32,41 @@ void radarUpdate(timeUs_t currentTimeUs) {
     	radar.radarDistance = radar.dev.getDistance(&radarFrame[0]);
     	radar.radarDistance = constrain(radar.radarDistance, 0, radar.radarMaxRangeCm);
     	radar.radarVelocity = radar.dev.getVelocity(&radarFrame[0]);
+    	//For displaying Data in Cleanflight Configurator
     	debug[0] = (int16_t) radar.radarDistance;
+    	debug[1] = (int16_t) radar.radarVelocity;
     	radarFrameComplete = false;
     }
 }
 
-static void radarDataReceive(uint16_t c)
+static void radarDataReceive(uint16_t data)
 {
-    uint32_t radarTime, radarTimeInterval;
-    static uint32_t radarTimeLast = 0;
+    static uint32_t radarFrameStartAt = 0;
     static uint8_t radarFramePosition = 0;
+    uint32_t radarFrameTime;
+    uint32_t now = micros();
 
-    radarTime = micros();
-    radarTimeInterval = radarTime - radarTimeLast;
-    radarTimeLast = radarTime;
+    radarFrameTime = now - radarFrameStartAt;
 
-    if (radarTimeInterval > RADAR_TIMEOUT) {
+    if (radarFrameTime > (radarTimeNeededPerFrame + 500)) {
         radarFramePosition = 0;
     }
 
+    if (radarFramePosition == 0) {
+           if (data != RADAR_FRAME_BEGIN_BYTE) {
+               return;
+           }
+           radarFrameStartAt = now;
+       }
+
     if (radarFramePosition < radar.dev.frameSize) {
-    	radarFrame[radarFramePosition++] = (uint8_t)c;
+    	radarFrame[radarFramePosition++] = (uint8_t)data;
         if (radarFramePosition < radar.dev.frameSize) {
         	radarFrameComplete = false;
-        } else {
-        	radarFrameComplete = true;
+        }
+        else {
+        	radarFrameComplete = radar.dev.isDataValid;
+        	radarFramePosition = 0;
         }
     }
 }
@@ -69,25 +80,26 @@ bool radarDetect(void) {
 
 	radarSensor_e radarHardware = RADAR_NONE;
 
-	#ifdef USE_RADAR_DISTANCE2GO
-	        if (radarDistance2GoInit(&radar)) {
-	            radarHardware = RADAR_DISTANCE2GO;
-	        }
-	#endif
+#ifdef USE_RADAR_DISTANCE2GO
+		if (radarDistance2GoInit(&radar)) {
+			radarHardware = RADAR_DISTANCE2GO;
+		}
+#endif
 
-	#ifdef USE_RADAR_SENSE2GO
-	        if (radarSense2GoInit(&radar)) {
-	            radarHardware = RADAR_SENSE2GO;
-	        }
-	#endif
+#ifdef USE_RADAR_SENSE2GO
+		if (radarSense2GoInit(&radar)) {
+			radarHardware = RADAR_SENSE2GO;
+		}
+#endif
 
-	    if (radarHardware == RADAR_NONE) {
-	        return false;
-	    }
+	if (radarHardware == RADAR_NONE) {
+		return false;
+	}
 
-	    detectedSensors[SENSOR_INDEX_RADAR] = radarHardware;
-	    sensorsSet(SENSOR_RADAR);
+	detectedSensors[SENSOR_INDEX_RADAR] = radarHardware;
+	sensorsSet(SENSOR_RADAR);
 
+	radarTimeNeededPerFrame = (uint32_t) (((radar.dev.frameSize+2)*8*1000000)/radar.dev.baudRate);
 
 	radarSerialPort = openSerialPort(portConfigPtr->identifier,
 			FUNCTION_RADAR_RX,

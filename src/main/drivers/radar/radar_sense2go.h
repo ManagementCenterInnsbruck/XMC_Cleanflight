@@ -20,13 +20,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <xmc_fce.h>
 #include "string.h"
 #include "platform.h"
 #include "common/maths.h"
 #include "sensors/sensors.h"
 #include "sensors/radar.h"
 
-#define RADAR_SENSE2GO_FRAMSIZE 						4
+
+#define RADAR_SENSE2GO_FRAMESIZE 						7
 #define RADAR_SENSE2GO_BAUDRATE 						115200
 #define RADAR_SENSE2GO_MAX_RANGE_CM 					500
 #define RADAR_SENSE2GO_DETECTION_CONE_DECIDEGREES 		300

@@ -26,7 +26,7 @@
 #include "sensors/sensors.h"
 #include "sensors/radar.h"
 
-#define RADAR_DISTANCE2GO_FRAMSIZE 						4
+#define RADAR_DISTANCE2GO_FRAMESIZE 						4
 #define RADAR_DISTANCE2GO_BAUDRATE 						115200
 #define RADAR_DISTANCE2GO_MAX_RANGE_CM 					500
 #define RADAR_DISTANCE2GO_DETECTION_CONE_DECIDEGREES 	300
