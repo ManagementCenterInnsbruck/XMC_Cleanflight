@@ -142,7 +142,8 @@ typedef struct {
 #define DPS310_TMP_RATE_1 0x00 ///1 messungen/sec
 #define DPS310_TMP_PRC_1 0x00 ///temp oversampling rate -1 time
 
-
+#define DPS310_UT_DELAY    5000        // 1.5ms margin according to the spec (4.5ms T conversion time)
+#define DPS310_UP_DELAY    6000       // 6000+21000=27000 1.5ms margin according to the spec (25.5ms P conversion time with OSS=3)
 
 STATIC_UNIT_TESTED dps310_t dps310;
 STATIC_UNIT_TESTED uint32_t dps310_ut;  // static result of temperature measurement
@@ -151,10 +152,8 @@ STATIC_UNIT_TESTED int32_t dps310_up;  // static result of pressure measurement
 float up_sc = 0.0f;
 float ut_sc = 0.0f;
 
-#define DPS310_UT_DELAY    5000        // 1.5ms margin according to the spec (4.5ms T conversion time)
-#define DPS310_UP_DELAY    6000       // 6000+21000=27000 1.5ms margin according to the spec (25.5ms P conversion time with OSS=3)
-
 static bool dps310InitDone = false;
+
 bool dps310Detect(baroDev_t *baro);
 static void dps310_get_cal_param(void);
 static void dps310_start_ut(void);

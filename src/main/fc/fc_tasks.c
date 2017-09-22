@@ -78,6 +78,7 @@
 #include "sensors/gyro.h"
 #include "sensors/sonar.h"
 #include "sensors/esc_sensor.h"
+#include "sensors/radar.h"
 
 #include "scheduler/scheduler.h"
 
@@ -305,6 +306,9 @@ void fcTasksInit(void)
 #if defined(BARO) || defined(SONAR)
     setTaskEnabled(TASK_ALTITUDE, sensors(SENSOR_BARO) || sensors(SENSOR_SONAR));
 #endif
+#ifdef RADAR
+    setTaskEnabled(TASK_RADAR, sensors(SENSOR_RADAR));
+#endif
 #ifdef USE_DASHBOARD
     setTaskEnabled(TASK_DASHBOARD, feature(FEATURE_DASHBOARD));
 #endif
@@ -483,6 +487,16 @@ cfTask_t cfTasks[TASK_COUNT] = {
         .staticPriority = TASK_PRIORITY_LOW,
     },
 #endif
+
+#ifdef RADAR
+    [TASK_RADAR] = {
+        .taskName = "RADAR",
+        .taskFunc = radarUpdate,
+        .desiredPeriod = TASK_PERIOD_HZ(40),
+        .staticPriority = TASK_PRIORITY_MEDIUM,
+    },
+#endif
+
 
 #if defined(BARO) || defined(SONAR)
     [TASK_ALTITUDE] = {
