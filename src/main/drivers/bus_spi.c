@@ -85,7 +85,7 @@
 
 
 #ifndef SPI1_SCK_PIN
-#define SPI1_NSS_PIN    P02
+#define SPI1_NSS_PIN    P06
 #define SPI1_SCK_PIN    P010
 #define SPI1_MISO_PIN   P00
 #define SPI1_MOSI_PIN   P01

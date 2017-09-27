@@ -28,7 +28,7 @@
 #define GYRO
 #define USE_GYRO_MPU6500
 #define USE_GYRO_SPI_MPU9250
-#define MPU9250_CS_PIN          P02
+#define MPU9250_CS_PIN          P06
 #define MPU9250_SPI_INSTANCE    USIC1_CH1
 
 #define ACC
