@@ -23,6 +23,9 @@ uint32_t radarTimeNeededPerFrame = 0;
 static volatile bool radarFrameComplete = false;
 static volatile uint8_t radarFrame[RADAR_FRAME_SIZE_MAX];
 
+#define RADAR_SAMPLES_MEDIAN 3
+static int16_t applyRadarMedianFilter(int16_t newRadarReading);
+
 static serialPort_t *radarSerialPort;
 
 void radarUpdate(timeUs_t currentTimeUs) {
@@ -33,7 +36,7 @@ void radarUpdate(timeUs_t currentTimeUs) {
     	radar.radarDistance = constrain(radar.radarDistance, 0, radar.radarMaxRangeCm);
     	radar.radarVelocity = radar.dev.getVelocity(&radarFrame[0]);
     	//For displaying Data in Cleanflight Configurator
-    	debug[0] = (int16_t) radar.radarDistance;
+    	debug[0] = applyRadarMedianFilter((int16_t) radar.radarDistance);
     	debug[1] = (int16_t) radar.radarVelocity;
     	radarFrameComplete = false;
     }
@@ -48,7 +51,7 @@ static void radarDataReceive(uint16_t data)
 
     radarFrameTime = now - radarFrameStartAt;
 
-    if (radarFrameTime > (radarTimeNeededPerFrame + 500)) {
+    if (radarFrameTime > (50000)) {
         radarFramePosition = 0;
     }
 
@@ -65,7 +68,7 @@ static void radarDataReceive(uint16_t data)
         	radarFrameComplete = false;
         }
         else {
-        	radarFrameComplete = radar.dev.isDataValid;
+        	radarFrameComplete = radar.dev.isDataValid(&radarFrame[0]);
         	radarFramePosition = 0;
         }
     }
@@ -99,7 +102,6 @@ bool radarDetect(void) {
 	detectedSensors[SENSOR_INDEX_RADAR] = radarHardware;
 	sensorsSet(SENSOR_RADAR);
 
-	radarTimeNeededPerFrame = (uint32_t) (((radar.dev.frameSize+2)*8*1000000)/radar.dev.baudRate);
 
 	radarSerialPort = openSerialPort(portConfigPtr->identifier,
 			FUNCTION_RADAR_RX,
@@ -109,4 +111,27 @@ bool radarDetect(void) {
 			SERIAL_NOT_INVERTED
 			);
 	return true;
+}
+
+
+static int16_t applyRadarMedianFilter(int16_t newRadarReading)
+{
+    static int32_t radarFilterSamples[RADAR_SAMPLES_MEDIAN];
+    static int currentFilterSampleIndex = 0;
+    static bool medianFilterReady = false;
+    int nextSampleIndex;
+
+    nextSampleIndex = (currentFilterSampleIndex + 1);
+    if (nextSampleIndex == RADAR_SAMPLES_MEDIAN) {
+        nextSampleIndex = 0;
+        medianFilterReady = true;
+    }
+
+    radarFilterSamples[currentFilterSampleIndex] = newRadarReading;
+    currentFilterSampleIndex = nextSampleIndex;
+
+    if (medianFilterReady)
+        return quickMedianFilter3(radarFilterSamples);
+    else
+        return newRadarReading;
 }

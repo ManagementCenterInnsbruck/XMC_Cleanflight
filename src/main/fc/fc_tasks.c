@@ -475,7 +475,7 @@ cfTask_t cfTasks[TASK_COUNT] = {
         .taskName = "BARO",
         .taskFunc = taskUpdateBaro,
         .desiredPeriod = TASK_PERIOD_HZ(100),
-        .staticPriority = TASK_PRIORITY_MEDIUM,
+        .staticPriority = TASK_PRIORITY_LOW,
     },
 #endif
 
@@ -492,7 +492,7 @@ cfTask_t cfTasks[TASK_COUNT] = {
     [TASK_RADAR] = {
         .taskName = "RADAR",
         .taskFunc = radarUpdate,
-        .desiredPeriod = TASK_PERIOD_HZ(40),
+        .desiredPeriod = TASK_PERIOD_HZ(100),
         .staticPriority = TASK_PRIORITY_MEDIUM,
     },
 #endif
@@ -502,8 +502,8 @@ cfTask_t cfTasks[TASK_COUNT] = {
     [TASK_ALTITUDE] = {
         .taskName = "ALTITUDE",
         .taskFunc = taskCalculateAltitude,
-        .desiredPeriod = TASK_PERIOD_HZ(40),
-        .staticPriority = TASK_PRIORITY_LOW,
+        .desiredPeriod = TASK_PERIOD_HZ(50),
+        .staticPriority = TASK_PRIORITY_MEDIUM,
     },
 #endif
 #endif
