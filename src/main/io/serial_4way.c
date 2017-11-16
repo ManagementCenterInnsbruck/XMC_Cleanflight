@@ -94,6 +94,11 @@ uint8_32_u DeviceInfo;
 
 #define DeviceInfoSize 4
 
+#ifdef XMC4500_F100x1024
+#include "drivers/io_impl.h"
+XMC_GPIO_MODE_t motor_output_mode[MAX_SUPPORTED_MOTORS] = {0};
+#endif
+
 inline bool isMcuConnected(void)
 {
     return (DeviceInfo.bytes[0] > 0);
@@ -125,7 +130,11 @@ inline void setEscInput(uint8_t selEsc)
 
 inline void setEscOutput(uint8_t selEsc)
 {
+#ifdef XMC4500_F100x1024
+	IOConfigGPIO(escHardware[selEsc].io, IOCFG_OUT_PP_UP);
+#else
     IOConfigGPIO(escHardware[selEsc].io, IOCFG_OUT_PP);
+#endif
 }
 
 uint8_t esc4wayInit(void)
@@ -139,6 +148,11 @@ uint8_t esc4wayInit(void)
         if (pwmMotors[i].enabled) {
             if (pwmMotors[i].io != IO_NONE) {
                 escHardware[escCount].io = pwmMotors[i].io;
+#ifdef XMC4500_F100x1024
+                XMC_GPIO_PORT_t* port = (XMC_GPIO_PORT_t*)IO_GPIO(pwmMotors[i].io);
+                uint8_t pin = IO_Pin(pwmMotors[i].io);
+                motor_output_mode[i] = (port->IOCR[pin >> 2] >> (PORT_IOCR_PC_Size * (pin & 0x3U))) & PORT_IOCR_PC_Msk;
+#endif
                 setEscInput(escCount);
                 setEscHi(escCount);
                 escCount++;
@@ -152,7 +166,11 @@ void esc4wayRelease(void)
 {
     while (escCount > 0) {
         escCount--;
+#ifdef XMC4500_F100x1024
+        IOConfigGPIOAF(escHardware[escCount].io, IOCFG_AF_PP, motor_output_mode[escCount]);
+#else
         IOConfigGPIO(escHardware[escCount].io, IOCFG_AF_PP);
+#endif
         setEscLo(escCount);
     }
     pwmEnableMotors();
