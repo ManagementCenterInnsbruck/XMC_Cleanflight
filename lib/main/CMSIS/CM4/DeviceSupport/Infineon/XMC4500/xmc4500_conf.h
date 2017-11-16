@@ -16,6 +16,12 @@
 #include "xmc_flash.h"
 #include "xmc4500_misc.h"  /* High level functions for NVIC and SysTick (add-on to CMSIS functions) */
 
+typedef enum
+{
+  Bit_RESET = 0,
+  Bit_SET
+}BitAction;
+
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Uncomment the line below to expanse the "assert_param" macro in the

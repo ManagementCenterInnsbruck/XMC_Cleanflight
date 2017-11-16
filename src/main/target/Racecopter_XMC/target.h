@@ -48,6 +48,9 @@
 
 #define USE_SERIALRX_JETIEXBUS
 
+#define USE_SERIAL_4WAY_BLHELI_INTERFACE
+//#define USE_ESCSERIAL
+
 #define TARGET_IO_PORT0         0xffff
 #define TARGET_IO_PORT1         0xffff
 #define TARGET_IO_PORT2         0xffff
