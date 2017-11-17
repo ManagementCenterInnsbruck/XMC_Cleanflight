@@ -107,10 +107,10 @@
 
 #ifdef USE_UART1
 #ifndef UART1_TX_PIN
-#define UART1_TX_PIN        P15
+#define UART1_TX_PIN        P51
 #endif
 #ifndef UART1_RX_PIN
-#define UART1_RX_PIN        P14
+#define UART1_RX_PIN        P15
 #endif
 #endif
 
