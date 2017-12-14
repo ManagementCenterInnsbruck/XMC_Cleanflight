@@ -62,6 +62,9 @@ void uartPinConfigure(const serialPinConfig_t *pSerialPinConfig)
             if (hardware->txPins[pindex] && (hardware->txPins[pindex] == pSerialPinConfig->ioTagTx[device]))
             {
                 uartdev->tx = pSerialPinConfig->ioTagTx[device];
+#ifdef XMC4500_F100x1024
+                uartdev->port.af = hardware->txAf[pindex];
+#endif
             }
         }
 

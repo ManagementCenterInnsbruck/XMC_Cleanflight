@@ -142,7 +142,7 @@ typedef struct uartHardware_s {
 #ifndef XMC4500_F100x1024
     rccPeriphTag_t rcc;
 #endif
-    uint8_t af;
+    uint8_t txAf[UARTHARDWARE_MAX_PINS];
 #ifndef XMC4500_F100x1024
 #if defined(STM32F7)
     uint8_t txIrq;

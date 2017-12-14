@@ -73,6 +73,7 @@ typedef struct uartPort_s {
     USART_TypeDef *USARTx;
 #ifdef XMC4500_F100x1024
     uint8_t input_source;
+    uint8_t af;
 #endif
 } uartPort_t;
 

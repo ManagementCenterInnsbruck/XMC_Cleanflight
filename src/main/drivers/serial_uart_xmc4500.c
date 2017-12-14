@@ -91,7 +91,7 @@ const uartHardware_t uartHardware[UARTDEV_COUNT] = {
         .txDMAChannel = UART1_TX_DMA,
         .rxPins = { DEFIO_TAG_E(P15), DEFIO_TAG_E(P14), IO_TAG_NONE, DEFIO_TAG_E(P50) },//DXx channels on XMC depends on placement here
         .txPins = { DEFIO_TAG_E(P15), DEFIO_TAG_E(P17), DEFIO_TAG_E(P51) },
-        .af = XMC_GPIO_MODE_OUTPUT_ALT1,
+        .txAf = { XMC_GPIO_MODE_OUTPUT_ALT2, XMC_GPIO_MODE_OUTPUT_ALT2, XMC_GPIO_MODE_OUTPUT_ALT1, 0 },
         .irqn_tx = USIC0_0_IRQn,
 		.irqn_rx = USIC0_1_IRQn,
         .txPriority = NVIC_PRIO_SERIALUART1_TXDMA,
@@ -107,7 +107,7 @@ const uartHardware_t uartHardware[UARTDEV_COUNT] = {
         .txDMAChannel = UART2_TX_DMA,
 		.rxPins = { DEFIO_TAG_E(P04), DEFIO_TAG_E(P05), DEFIO_TAG_E(P215), DEFIO_TAG_E(P214) },
         .txPins = { DEFIO_TAG_E(P05), DEFIO_TAG_E(P214), IO_TAG_NONE, IO_TAG_NONE },
-        .af = XMC_GPIO_MODE_OUTPUT_ALT2,
+        .txAf = { XMC_GPIO_MODE_OUTPUT_ALT2, XMC_GPIO_MODE_OUTPUT_ALT2, 0, 0 },
         .irqn_tx = USIC1_0_IRQn,
 		.irqn_rx = USIC1_1_IRQn,
         .txPriority = NVIC_PRIO_SERIALUART2_TXDMA,
@@ -123,7 +123,7 @@ const uartHardware_t uartHardware[UARTDEV_COUNT] = {
         .txDMAChannel = UART3_TX_DMA,
         .rxPins = { IO_TAG_NONE, DEFIO_TAG_E(P34), DEFIO_TAG_E(P40), IO_TAG_NONE },
         .txPins = { DEFIO_TAG_E(P35), IO_TAG_NONE, IO_TAG_NONE, IO_TAG_NONE },
-        .af = XMC_GPIO_MODE_OUTPUT_ALT1,
+        .txAf = { XMC_GPIO_MODE_OUTPUT_ALT1, 0, 0, 0 },
         .irqn_tx = USIC2_2_IRQn,
 		.irqn_rx = USIC2_3_IRQn,
         .txPriority = NVIC_PRIO_SERIALUART3_TXDMA,
@@ -241,7 +241,7 @@ uartPort_t *serialUART(UARTDevice device, uint32_t baudRate, portMode_t mode, po
 	   //s->txDMAPeripheralBaseAddr = (uint32_t)&s->USARTx->TDR;
    }
 
-   serialUARTInitIO(IOGetByTag(uartDev->tx), IOGetByTag(uartDev->rx), mode, options, hardware->af, device);
+   serialUARTInitIO(IOGetByTag(uartDev->tx), IOGetByTag(uartDev->rx), mode, options, uartDev->port.af, device);
 
    if (!s->rxDMAChannel || !s->txDMAChannel) {
 	   NVIC_InitTypeDef NVIC_InitStructure;

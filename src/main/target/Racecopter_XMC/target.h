@@ -16,6 +16,9 @@
 #define USE_UART2
 #define USE_UART3
 
+#define UART1_RX_PIN        	P14
+#define UART1_TX_PIN        	P15
+
 #define USE_I2C
 #define USE_I2C_DEVICE_1
 #define USE_I2C_DEVICE_2
