@@ -26,10 +26,11 @@
 #define I2C_LONG_TIMEOUT             ((uint32_t)(10 * I2C_SHORT_TIMEOUT))
 #define I2C_DEFAULT_TIMEOUT          I2C_SHORT_TIMEOUT
 
-#define I2C_PIN_SEL_MAX 3
-
 #ifdef XMC4500_F100x1024
+#define I2C_PIN_SEL_MAX 4
 typedef USIC_CH_TypeDef I2C_TypeDef;
+#else
+#define I2C_PIN_SEL_MAX 3
 #endif
 
 typedef struct i2cHardware_s {

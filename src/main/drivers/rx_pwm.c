@@ -421,10 +421,19 @@ void ppmAvoidPWMTimerClash(TIM_TypeDef *pwmTimer, uint8_t pwmProtocol)
 {
     pwmOutputPort_t *motors = pwmGetMotors();
     for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS; motorIndex++) {
+#ifdef USE_ONBOARD_ESC
+    	if (!motors[motorIndex].enabled)
+    		continue;
+    	for(int outIndex = 0; outIndex < INVERTER_OUT_CNT; outIndex++)
+		{
+    		if (motors[motorIndex].inverter.tim[outIndex] != pwmTimer)
+    			continue;
+		}
+#else
         if (!motors[motorIndex].enabled || motors[motorIndex].tim != pwmTimer) {
             continue;
         }
-
+#endif
         switch (pwmProtocol)
         {
         case PWM_TYPE_ONESHOT125:
@@ -436,9 +445,15 @@ void ppmAvoidPWMTimerClash(TIM_TypeDef *pwmTimer, uint8_t pwmProtocol)
         case PWM_TYPE_MULTISHOT:
             ppmCountDivisor = MULTISHOT_TIMER_MHZ;
             break;
+#ifdef USE_ONBOARD_ESC
+        case PWM_TYPE_ONBOARD_ESC:
+            ppmCountDivisor = PWM_TIMER_MHZ_MAX;
+            break;
+#else
         case PWM_TYPE_BRUSHED:
             ppmCountDivisor = PWM_BRUSHED_TIMER_MHZ;
             break;
+#endif
         }
         return;
     }

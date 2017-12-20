@@ -38,6 +38,14 @@ const timerDef_t timerDefinitions[HARDWARE_TIMER_DEFINITION_COUNT] = {
 	  {   .TIMx = (TIM_TypeDef*)CCU43_CC41,   .ccu_global = (uint32_t*)CCU43,	.isCCU8 = 0,   .inputIrq = 0},
 	  {   .TIMx = (TIM_TypeDef*)CCU43_CC42,   .ccu_global = (uint32_t*)CCU43,	.isCCU8 = 0,   .inputIrq = 0},
 	  {   .TIMx = (TIM_TypeDef*)CCU43_CC43,   .ccu_global = (uint32_t*)CCU43,	.isCCU8 = 0,   .inputIrq = 0},
+	  {   .TIMx = (TIM_TypeDef*)CCU80_CC80,   .ccu_global = (uint32_t*)CCU80,	.isCCU8 = 1,   .inputIrq = 0},
+	  {   .TIMx = (TIM_TypeDef*)CCU80_CC81,   .ccu_global = (uint32_t*)CCU80,	.isCCU8 = 1,   .inputIrq = 0},
+	  {   .TIMx = (TIM_TypeDef*)CCU80_CC82,   .ccu_global = (uint32_t*)CCU80,	.isCCU8 = 1,   .inputIrq = 0},
+	  {   .TIMx = (TIM_TypeDef*)CCU80_CC83,   .ccu_global = (uint32_t*)CCU80,	.isCCU8 = 1,   .inputIrq = 0},
+	  {   .TIMx = (TIM_TypeDef*)CCU81_CC80,   .ccu_global = (uint32_t*)CCU81,	.isCCU8 = 1,   .inputIrq = 0},
+	  {   .TIMx = (TIM_TypeDef*)CCU81_CC81,   .ccu_global = (uint32_t*)CCU81,	.isCCU8 = 1,   .inputIrq = 0},
+	  {   .TIMx = (TIM_TypeDef*)CCU81_CC82,   .ccu_global = (uint32_t*)CCU81,	.isCCU8 = 1,   .inputIrq = 0},
+	  {   .TIMx = (TIM_TypeDef*)CCU81_CC83,   .ccu_global = (uint32_t*)CCU81,	.isCCU8 = 1,   .inputIrq = 0},
 };
 
 uint8_t timerClockDivisor(TIM_TypeDef *tim)

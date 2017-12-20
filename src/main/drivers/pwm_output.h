@@ -28,6 +28,11 @@
 #define MAX_SUPPORTED_SERVOS 8
 #endif
 
+#ifdef USE_ONBOARD_ESC
+#define INVERTER_OUT_CNT 6
+#define PHASE_CNT 3
+#endif
+
 typedef enum {
     DSHOT_CMD_MOTOR_STOP = 0,
     DSHOT_CMD_BEEP1,
@@ -53,7 +58,11 @@ typedef enum {
     PWM_TYPE_ONESHOT125,
     PWM_TYPE_ONESHOT42,
     PWM_TYPE_MULTISHOT,
+#ifdef USE_ONBOARD_ESC
+	PWM_TYPE_ONBOARD_ESC,
+#else
     PWM_TYPE_BRUSHED,
+#endif
 #ifdef USE_DSHOT
     PWM_TYPE_DSHOT150,
     PWM_TYPE_DSHOT300,
@@ -96,6 +105,7 @@ typedef enum {
 #define ONESHOT42_TIMER_MHZ   30
 #define MULTISHOT_TIMER_MHZ   60
 #define PWM_BRUSHED_TIMER_MHZ 30
+#define PWM_TIMER_MHZ_MAX    120
 #else
 #define ONESHOT125_TIMER_MHZ  8
 #define ONESHOT42_TIMER_MHZ   24
@@ -135,13 +145,41 @@ struct timerHardware_s;
 typedef void(*pwmWriteFuncPtr)(uint8_t index, uint16_t value);  // function pointer used to write motors
 typedef void(*pwmCompleteWriteFuncPtr)(uint8_t motorCount);   // function pointer used after motors are written
 
+#ifdef USE_ONBOARD_ESC
+typedef struct
+{
+	TIM_TypeDef *tim[INVERTER_OUT_CNT];
+    IO_t io[INVERTER_OUT_CNT];
+    uint32_t patternCnt;
+    uint8_t pattern;
+    uint16_t deadtime;
+    VADC_G_TypeDef *adc_group;
+    uint8_t phase_channel[PHASE_CNT];
+    int16_t delay_cnt;
+    float avg_delay;
+    int16_t com_cnt;
+    uint16_t disable_cnt;
+    uint8_t crossing_detected;
+    uint16_t min_ccr;
+    uint8_t startup;
+    uint8_t emergency_stop;
+    uint32_t emergency_stop_cnt;
+} pwmInverter_t;
+#endif
+
 typedef struct {
     volatile timCCR_t *ccr;
+#ifdef USE_ONBOARD_ESC
+    pwmInverter_t inverter;
+#else
     TIM_TypeDef *tim;
+#endif
     bool forceOverflow;
     uint16_t period;
     bool enabled;
+#ifndef USE_ONBOARD_ESC
     IO_t io;
+#endif
 #ifdef XMC4500_F100x1024
     timCCR_t CCR_dummy;
 #endif
@@ -152,7 +190,12 @@ typedef struct motorDevConfig_s {
     uint8_t  motorPwmProtocol;              // Pwm Protocol
     uint8_t  motorPwmInversion;             // Active-High vs Active-Low. Useful for brushed FCs converted for brushless operation
     uint8_t  useUnsyncedPwm;
+#ifdef USE_ONBOARD_ESC
+    ioTag_t  ioTags[MAX_SUPPORTED_MOTORS * INVERTER_OUT_CNT];
+    uint16_t deadtime;
+#else
     ioTag_t  ioTags[MAX_SUPPORTED_MOTORS];
+#endif
 } motorDevConfig_t;
 
 void motorDevInit(const motorDevConfig_t *motorDevConfig, uint16_t idlePulse, uint8_t motorCount);

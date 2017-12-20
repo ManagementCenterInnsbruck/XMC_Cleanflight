@@ -148,7 +148,7 @@ typedef enum {
 #elif defined(STM32F7)
 #define HARDWARE_TIMER_DEFINITION_COUNT 14
 #elif defined(XMC4500_F100x1024)
-#define HARDWARE_TIMER_DEFINITION_COUNT 16
+#define HARDWARE_TIMER_DEFINITION_COUNT 24
 #endif
 
 extern const timerHardware_t timerHardware[];

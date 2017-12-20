@@ -24,6 +24,7 @@
 #define QUAD_MOTOR_COUNT 4
 #define BRUSHED_MOTORS_PWM_RATE 16000
 #define BRUSHLESS_MOTORS_PWM_RATE 480
+#define ONBOARD_ESC_PWM_RATE	50000
 
 /*
   DshotSettingRequest (KISS24). Spin direction, 3d and save Settings reqire 10 requests.. and the TLM Byte must always be high if 1-47 are used to send settings

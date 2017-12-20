@@ -376,7 +376,11 @@ void validateAndFixConfig(void)
 #endif
 
 #ifndef USE_OSD_SLAVE
+#ifdef USE_ONBOARD_ESC
+    if((motorConfig()->dev.motorPwmProtocol == PWM_TYPE_ONBOARD_ESC) && (motorConfig()->mincommand < 1000)){
+#else
     if((motorConfig()->dev.motorPwmProtocol == PWM_TYPE_BRUSHED) && (motorConfig()->mincommand < 1000)){
+#endif
         motorConfigMutable()->mincommand = 1000;
     }
 
@@ -520,7 +524,12 @@ void validateAndFixGyroConfig(void)
     }
 
     // Prevent overriding the max rate of motors
-    if (motorConfig()->dev.useUnsyncedPwm && (motorConfig()->dev.motorPwmProtocol <= PWM_TYPE_BRUSHED) && motorConfig()->dev.motorPwmProtocol != PWM_TYPE_STANDARD) {
+#ifdef USE_ONBOARD_ESC
+    if (motorConfig()->dev.useUnsyncedPwm && (motorConfig()->dev.motorPwmProtocol <= PWM_TYPE_ONBOARD_ESC) && motorConfig()->dev.motorPwmProtocol != PWM_TYPE_STANDARD)
+#else
+    if (motorConfig()->dev.useUnsyncedPwm && (motorConfig()->dev.motorPwmProtocol <= PWM_TYPE_BRUSHED) && motorConfig()->dev.motorPwmProtocol != PWM_TYPE_STANDARD)
+#endif
+    {
         uint32_t maxEscRate = lrintf(1.0f / motorUpdateRestriction);
 
         if(motorConfig()->dev.motorPwmRate > maxEscRate)

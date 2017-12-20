@@ -24,6 +24,8 @@
 #define ADC_TAG_MAP_COUNT 16
 #elif defined(STM32F3)
 #define ADC_TAG_MAP_COUNT 39
+#elif defined(XMC4500_F100x1024)
+#define ADC_TAG_MAP_COUNT 32
 #else
 #define ADC_TAG_MAP_COUNT 10
 #endif
@@ -45,10 +47,14 @@ typedef enum ADCDevice {
 typedef struct adcTagMap_s {
     ioTag_t tag;
     uint8_t channel;
+#ifdef XMC4500_F100x1024
+    VADC_G_TypeDef* group;
+#endif
 } adcTagMap_t;
 
 typedef struct adcDevice_s {
     ADC_TypeDef* ADCx;
+#ifndef XMC4500_F100x1024
     rccPeriphTag_t rccADC;
 #if defined(STM32F4) || defined(STM32F7)
     DMA_Stream_TypeDef* DMAy_Streamx;
@@ -60,7 +66,18 @@ typedef struct adcDevice_s {
     ADC_HandleTypeDef ADCHandle;
     DMA_HandleTypeDef DmaHandle;
 #endif
+#endif
 } adcDevice_t;
+
+#ifdef USE_ONBOARD_ESC
+typedef struct adcInverter_s
+{
+	VADC_G_TypeDef* group;
+	uint8_t			channels[3];
+	uint8_t			trigger_input;
+	uint32_t		irq;
+}adcInverter_t;
+#endif
 
 extern const adcDevice_t adcHardware[];
 extern const adcTagMap_t adcTagMap[ADC_TAG_MAP_COUNT];

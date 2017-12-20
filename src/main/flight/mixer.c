@@ -67,6 +67,12 @@ PG_REGISTER_WITH_RESET_FN(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 0);
 
 void pgResetFn_motorConfig(motorConfig_t *motorConfig)
 {
+#ifdef USE_ONBOARD_ESC
+	motorConfig->minthrottle = 1070;
+	motorConfig->dev.motorPwmRate = ONBOARD_ESC_PWM_RATE;
+	motorConfig->dev.motorPwmProtocol = PWM_TYPE_ONBOARD_ESC;
+	motorConfig->dev.deadtime = 36;
+#else
 #ifdef BRUSHED_MOTORS
     motorConfig->minthrottle = 1000;
     motorConfig->dev.motorPwmRate = BRUSHED_MOTORS_PWM_RATE;
@@ -87,13 +93,19 @@ void pgResetFn_motorConfig(motorConfig_t *motorConfig)
         motorConfig->dev.motorPwmProtocol = PWM_TYPE_ONESHOT125;
     }
 #endif
+#endif
     motorConfig->maxthrottle = 2000;
     motorConfig->mincommand = 1000;
     motorConfig->digitalIdleOffsetValue = 450;
 
     int motorIndex = 0;
-    for (int i = 0; i < USABLE_TIMER_CHANNEL_COUNT && motorIndex < MAX_SUPPORTED_MOTORS; i++) {
-        if (timerHardware[i].usageFlags & TIM_USE_MOTOR) {
+#ifdef USE_ONBOARD_ESC
+    for (int i = 0; i < USABLE_TIMER_CHANNEL_COUNT && motorIndex < MAX_SUPPORTED_MOTORS * INVERTER_OUT_CNT; i++)
+#else
+    for (int i = 0; i < USABLE_TIMER_CHANNEL_COUNT && motorIndex < MAX_SUPPORTED_MOTORS; i++)
+#endif
+    {
+    	if (timerHardware[i].usageFlags & TIM_USE_MOTOR) {
             motorConfig->dev.ioTags[motorIndex] = timerHardware[i].tag;
             motorIndex++;
         }
@@ -125,12 +137,12 @@ float pidSumLimitYaw;
 
 
 static const motorMixer_t mixerQuadX[] = {
-    { 1.0f, -1.0f,  1.0f, -1.0f },          // REAR_R
-    { 1.0f, -1.0f, -1.0f,  1.0f },          // FRONT_R
-	{ 1.0f,  1.0f, -1.0f, -1.0f },          // FRONT_L -> switched line 130 with 131
-    { 1.0f,  1.0f,  1.0f,  1.0f },          // REAR_L
-
+	{ 1.0f, -1.0f,  1.0f, -1.0f },          // REAR_R
+	{ 1.0f, -1.0f, -1.0f,  1.0f },          // FRONT_R
+	{ 1.0f,  1.0f,  1.0f,  1.0f },          // REAR_L
+	{ 1.0f,  1.0f, -1.0f, -1.0f },          // FRONT_L
 };
+
 #ifndef USE_QUAD_MIXER_ONLY
 static const motorMixer_t mixerTricopter[] = {
     { 1.0f,  0.0f,  1.333333f,  0.0f },     // REAR

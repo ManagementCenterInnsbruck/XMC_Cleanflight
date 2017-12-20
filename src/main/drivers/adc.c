@@ -45,6 +45,9 @@ uint8_t adcChannelByTag(ioTag_t ioTag)
 
 uint16_t adcGetChannel(uint8_t channel)
 {
+#ifdef XMC4500_F100x1024
+	return XMC_VADC_GROUP_GetResult(adcOperatingConfig[channel].group, adcOperatingConfig[channel].adcChannel);
+#else
 #ifdef DEBUG_ADC_CHANNELS
     if (adcOperatingConfig[0].enabled) {
         debug[0] = adcValues[adcOperatingConfig[0].dmaIndex];
@@ -60,6 +63,7 @@ uint16_t adcGetChannel(uint8_t channel)
     }
 #endif
     return adcValues[adcOperatingConfig[channel].dmaIndex];
+#endif
 }
 
 #else

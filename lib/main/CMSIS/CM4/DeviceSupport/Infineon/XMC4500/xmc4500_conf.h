@@ -14,6 +14,7 @@
 #include "xmc_ccu4.h"
 #include "xmc_ccu8.h"
 #include "xmc_flash.h"
+#include "xmc_vadc.h"
 #include "xmc4500_misc.h"  /* High level functions for NVIC and SysTick (add-on to CMSIS functions) */
 
 typedef enum
