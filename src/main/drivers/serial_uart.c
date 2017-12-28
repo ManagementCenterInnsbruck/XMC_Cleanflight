@@ -283,13 +283,21 @@ const struct serialPortVTable uartVTable[] = {
 #ifdef USE_UART1
 // USART1 Rx/Tx IRQ Handler
 #ifdef XMC4500_F100x1024
+#if UART1_USIC == U1C1
+void USIC1_0_IRQHandler()
+#else
 void USIC0_0_IRQHandler()
+#endif
 {
 	uartPort_t *s = &(uartDevmap[UARTDEV_1]->port);
 	uartTxIrqHandler(s);
 }
 
+#if UART1_USIC == U1C1
+void USIC1_1_IRQHandler()
+#else
 void USIC0_1_IRQHandler()
+#endif
 {
 	uartPort_t *s = &(uartDevmap[UARTDEV_1]->port);
 	uartRxIrqHandler(s);
@@ -307,13 +315,13 @@ void USART1_IRQHandler(void)
 #ifdef USE_UART2
 // USART2 Rx/Tx IRQ Handler
 #ifdef XMC4500_F100x1024
-void USIC1_0_IRQHandler()
+void USIC1_2_IRQHandler()
 {
 	uartPort_t *s = &(uartDevmap[UARTDEV_2]->port);
 	uartTxIrqHandler(s);
 }
 
-void USIC1_1_IRQHandler()
+void USIC1_3_IRQHandler()
 {
 	uartPort_t *s = &(uartDevmap[UARTDEV_2]->port);
 	uartRxIrqHandler(s);

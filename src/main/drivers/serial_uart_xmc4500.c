@@ -86,16 +86,25 @@ const uartHardware_t uartHardware[UARTDEV_COUNT] = {
 #ifdef USE_UART1
     {
         .device = UARTDEV_1,
-        .reg = USIC0_CH0,
         .rxDMAChannel = UART1_RX_DMA,
         .txDMAChannel = UART1_TX_DMA,
+        .txPriority = NVIC_PRIO_SERIALUART1_TXDMA,
+        .rxPriority = NVIC_PRIO_SERIALUART1_RXDMA,
+#if UART1_USIC == U1C1
+        .reg = USIC1_CH1,
+        .rxPins = { IO_TAG_NONE, IO_TAG_NONE, IO_TAG_NONE, DEFIO_TAG_E(P00) },
+        .txPins = { DEFIO_TAG_E(P01) },
+        .txAf = { XMC_GPIO_MODE_OUTPUT_ALT2 },
+        .irqn_tx = USIC1_0_IRQn,
+		.irqn_rx = USIC1_1_IRQn,
+#else
+        .reg = USIC0_CH0,
         .rxPins = { DEFIO_TAG_E(P15), DEFIO_TAG_E(P14), IO_TAG_NONE, DEFIO_TAG_E(P50) },//DXx channels on XMC depends on placement here
         .txPins = { DEFIO_TAG_E(P15), DEFIO_TAG_E(P17), DEFIO_TAG_E(P51) },
         .txAf = { XMC_GPIO_MODE_OUTPUT_ALT2, XMC_GPIO_MODE_OUTPUT_ALT2, XMC_GPIO_MODE_OUTPUT_ALT1, 0 },
         .irqn_tx = USIC0_0_IRQn,
 		.irqn_rx = USIC0_1_IRQn,
-        .txPriority = NVIC_PRIO_SERIALUART1_TXDMA,
-        .rxPriority = NVIC_PRIO_SERIALUART1_RXDMA,
+#endif
     },
 #endif
 
@@ -108,8 +117,8 @@ const uartHardware_t uartHardware[UARTDEV_COUNT] = {
 		.rxPins = { DEFIO_TAG_E(P04), DEFIO_TAG_E(P05), DEFIO_TAG_E(P215), DEFIO_TAG_E(P214) },
         .txPins = { DEFIO_TAG_E(P05), DEFIO_TAG_E(P214), IO_TAG_NONE, IO_TAG_NONE },
         .txAf = { XMC_GPIO_MODE_OUTPUT_ALT2, XMC_GPIO_MODE_OUTPUT_ALT2, 0, 0 },
-        .irqn_tx = USIC1_0_IRQn,
-		.irqn_rx = USIC1_1_IRQn,
+        .irqn_tx = USIC1_2_IRQn,
+		.irqn_rx = USIC1_3_IRQn,
         .txPriority = NVIC_PRIO_SERIALUART2_TXDMA,
         .rxPriority = NVIC_PRIO_SERIALUART2_RXDMA,
     },
