@@ -19,6 +19,7 @@
 
 #include "drivers/io_types.h"
 #include "rcc_types.h"
+#include "nvic.h"
 
 #if defined(STM32F4) || defined(STM32F3)
 #define SPI_IO_AF_CFG      IO_CONFIG(GPIO_Mode_AF,  GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL)
@@ -37,6 +38,9 @@
 #define SPI_IO_AF_MISO_CFG    IO_CONFIG(GPIO_Mode_IN_FLOATING, GPIO_Speed_50MHz)
 #define SPI_IO_CS_CFG         IO_CONFIG(GPIO_Mode_Out_PP,      GPIO_Speed_50MHz)
 #elif defined(XMC4500_F100x1024)
+
+#define SPI_BUFFER_SIZE	512
+
 typedef USIC_CH_TypeDef SPI_TypeDef;
 #endif
 
@@ -86,11 +90,25 @@ typedef struct SPIDevice_s {
     rccPeriphTag_t rcc;
     uint8_t af;
 #else
-    uint8_t af_clk;
-    uint8_t af_mosi;
-    uint8_t af_nss;
-    uint8_t miso_source;
+    uint32_t af_source_clk;
+    uint32_t af_source_mosi;
+    uint32_t af_source_nss;
+    uint32_t af_source_miso;
     XMC_SPI_CH_SLAVE_SELECT_t en_nss;
+    uint8_t isSlave;
+
+    uint8_t irqn_rx;
+    uint8_t irqn_tx;
+
+    uint8_t txPriority;
+    uint8_t rxPriority;
+
+    uint8_t rxBuffer[SPI_BUFFER_SIZE];
+    uint8_t txBuffer[SPI_BUFFER_SIZE];
+    uint32_t rxBufferHead;
+    uint32_t rxBufferTail;
+    uint32_t txBufferHead;
+    uint32_t txBufferTail;
 #endif
     volatile uint16_t errorCount;
     bool leadingEdge;

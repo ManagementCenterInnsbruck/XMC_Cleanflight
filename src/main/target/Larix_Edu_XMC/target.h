@@ -9,7 +9,7 @@
 #define LED2					P112
 #define LED2_INVERTED
 
-#define SERIAL_PORT_COUNT       2
+#define SERIAL_PORT_COUNT       3
 
 #define USE_UART1
 #define UART1_USIC				U1C1
@@ -18,9 +18,18 @@
 
 #define USE_UART2
 
+#define USE_UART3
+#define UART3_USIC				U0C0
+#define UART3_TX_PIN			P15
+#define UART3_RX_PIN			P14
+
 #define USE_I2C
 #define USE_I2C_DEVICE_1
 #define I2C_DEVICE 				(I2CDEV_1)
+
+#define USE_SPI
+#define USE_SPI_DEVICE_1
+#define SPI_DEVICE_1_SLAVE
 
 #define GYRO
 #define USE_GYRO_MPU6500

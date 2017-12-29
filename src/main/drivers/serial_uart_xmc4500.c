@@ -95,8 +95,8 @@ const uartHardware_t uartHardware[UARTDEV_COUNT] = {
         .rxPins = { IO_TAG_NONE, IO_TAG_NONE, IO_TAG_NONE, DEFIO_TAG_E(P00) },
         .txPins = { DEFIO_TAG_E(P01) },
         .txAf = { XMC_GPIO_MODE_OUTPUT_ALT2 },
-        .irqn_tx = USIC1_0_IRQn,
-		.irqn_rx = USIC1_1_IRQn,
+        .irqn_tx = USIC1_2_IRQn,
+		.irqn_rx = USIC1_3_IRQn,
 #else
         .reg = USIC0_CH0,
         .rxPins = { DEFIO_TAG_E(P15), DEFIO_TAG_E(P14), IO_TAG_NONE, DEFIO_TAG_E(P50) },//DXx channels on XMC depends on placement here
@@ -117,8 +117,8 @@ const uartHardware_t uartHardware[UARTDEV_COUNT] = {
 		.rxPins = { DEFIO_TAG_E(P04), DEFIO_TAG_E(P05), DEFIO_TAG_E(P215), DEFIO_TAG_E(P214) },
         .txPins = { DEFIO_TAG_E(P05), DEFIO_TAG_E(P214), IO_TAG_NONE, IO_TAG_NONE },
         .txAf = { XMC_GPIO_MODE_OUTPUT_ALT2, XMC_GPIO_MODE_OUTPUT_ALT2, 0, 0 },
-        .irqn_tx = USIC1_2_IRQn,
-		.irqn_rx = USIC1_3_IRQn,
+        .irqn_tx = USIC1_0_IRQn,
+		.irqn_rx = USIC1_1_IRQn,
         .txPriority = NVIC_PRIO_SERIALUART2_TXDMA,
         .rxPriority = NVIC_PRIO_SERIALUART2_RXDMA,
     },
@@ -127,16 +127,25 @@ const uartHardware_t uartHardware[UARTDEV_COUNT] = {
 #ifdef USE_UART3
     {
         .device = UARTDEV_3,
-        .reg = USIC2_CH1,
         .rxDMAChannel = UART3_RX_DMA,
         .txDMAChannel = UART3_TX_DMA,
+        .txPriority = NVIC_PRIO_SERIALUART3_TXDMA,
+        .rxPriority = NVIC_PRIO_SERIALUART3_RXDMA,
+#if UART3_USIC == U0C0
+		.reg = USIC0_CH0,
+        .rxPins = { DEFIO_TAG_E(P15), DEFIO_TAG_E(P14), IO_TAG_NONE, DEFIO_TAG_E(P50) },
+        .txPins = { DEFIO_TAG_E(P15), DEFIO_TAG_E(P17), DEFIO_TAG_E(P51), IO_TAG_NONE },
+        .txAf = { XMC_GPIO_MODE_OUTPUT_ALT2, XMC_GPIO_MODE_OUTPUT_ALT2, XMC_GPIO_MODE_OUTPUT_ALT1, 0 },
+        .irqn_tx = USIC0_0_IRQn,
+		.irqn_rx = USIC0_1_IRQn,
+#else
+		.reg = USIC2_CH1,
         .rxPins = { IO_TAG_NONE, DEFIO_TAG_E(P34), DEFIO_TAG_E(P40), IO_TAG_NONE },
         .txPins = { DEFIO_TAG_E(P35), IO_TAG_NONE, IO_TAG_NONE, IO_TAG_NONE },
         .txAf = { XMC_GPIO_MODE_OUTPUT_ALT1, 0, 0, 0 },
         .irqn_tx = USIC2_2_IRQn,
 		.irqn_rx = USIC2_3_IRQn,
-        .txPriority = NVIC_PRIO_SERIALUART3_TXDMA,
-        .rxPriority = NVIC_PRIO_SERIALUART3_RXDMA,
+#endif
     },
 #endif
 
@@ -262,6 +271,8 @@ uartPort_t *serialUART(UARTDevice device, uint32_t baudRate, portMode_t mode, po
 	   NVIC_Init(&NVIC_InitStructure);
 
 	   NVIC_InitStructure.NVIC_IRQChannel = hardware->irqn_tx;
+	   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = NVIC_PRIORITY_BASE(hardware->txPriority);
+	   NVIC_InitStructure.NVIC_IRQChannelSubPriority = NVIC_PRIORITY_SUB(hardware->txPriority);
 	   NVIC_Init(&NVIC_InitStructure);
    }
 

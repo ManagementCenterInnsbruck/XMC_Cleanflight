@@ -73,22 +73,11 @@
 
 #else
 
-#ifndef GPIO_AF_SPI1_CLK
-#define GPIO_AF_SPI1_CLK    XMC_GPIO_MODE_OUTPUT_ALT2
-#endif
-#ifndef GPIO_AF_SPI1_MOSI
-#define GPIO_AF_SPI1_MOSI    XMC_GPIO_MODE_OUTPUT_ALT2
-#endif
-#ifndef GPIO_AF_SPI1_NSS
-#define GPIO_AF_SPI1_NSS    XMC_GPIO_MODE_OUTPUT_ALT2
-#endif
-
-
 #ifndef SPI1_SCK_PIN
-#define SPI1_NSS_PIN    P06
-#define SPI1_SCK_PIN    P010
-#define SPI1_MISO_PIN   P00
-#define SPI1_MOSI_PIN   P01
+#define SPI1_NSS_PIN    P31
+#define SPI1_SCK_PIN    P30
+#define SPI1_MISO_PIN   P25
+#define SPI1_MOSI_PIN   P40
 #endif
 
 #endif
@@ -106,7 +95,11 @@ static spiDevice_t spiHardwareMap[] = {
     { .dev = SPI3, .nss = IO_TAG(SPI3_NSS_PIN), .sck = IO_TAG(SPI3_SCK_PIN), .miso = IO_TAG(SPI3_MISO_PIN), .mosi = IO_TAG(SPI3_MOSI_PIN), .rcc = RCC_APB1(SPI3), .af = GPIO_AF_SPI3, false }
 #endif
 #else
-    { .dev = USIC1_CH1, .nss = IO_TAG(SPI1_NSS_PIN), .sck = IO_TAG(SPI1_SCK_PIN), .miso = IO_TAG(SPI1_MISO_PIN), .mosi = IO_TAG(SPI1_MOSI_PIN), .af_clk = GPIO_AF_SPI1_CLK, .af_mosi = GPIO_AF_SPI1_MOSI, .af_nss = GPIO_AF_SPI1_NSS, .miso_source = 3, .en_nss = XMC_SPI_CH_SLAVE_SELECT_1, false },
+#ifdef SPI_DEVICE_1_SLAVE
+    { .dev = USIC0_CH1, .nss = IO_TAG(SPI1_NSS_PIN), .sck = IO_TAG(SPI1_SCK_PIN), .miso = IO_TAG(SPI1_MISO_PIN), .mosi = IO_TAG(SPI1_MOSI_PIN), .af_source_clk = 1, .af_source_mosi = 4, .af_source_nss = 1, .af_source_miso = XMC_GPIO_MODE_OUTPUT_ALT2, .en_nss = XMC_SPI_CH_SLAVE_SELECT_1, .isSlave = 1, .irqn_tx = USIC0_2_IRQn, .irqn_rx = USIC0_3_IRQn, .txPriority = NVIC_PRIO_SPI_TXDMA, .rxPriority = NVIC_PRIO_SPI_RXDMA},
+#else
+    { .dev = USIC1_CH1, .nss = IO_TAG(SPI1_NSS_PIN), .sck = IO_TAG(SPI1_SCK_PIN), .miso = IO_TAG(SPI1_MISO_PIN), .mosi = IO_TAG(SPI1_MOSI_PIN), .af_source_clk = XMC_GPIO_MODE_OUTPUT_ALT2, .af_source_mosi = XMC_GPIO_MODE_OUTPUT_ALT2, .af_source_nss = XMC_GPIO_MODE_OUTPUT_ALT2, .af_source_miso = 3, .en_nss = XMC_SPI_CH_SLAVE_SELECT_1, .isSlave = 0},
+#endif
 #endif
 };
 
@@ -122,7 +115,11 @@ SPIDevice spiDeviceByInstance(SPI_TypeDef *instance)
     if (instance == SPI3)
         return SPIDEV_3;
 #else
+#ifdef SPI_DEVICE_1_SLAVE
+    if (instance == USIC0_CH1)
+#else
     if (instance == USIC1_CH1)
+#endif
     	return SPIDEV_1;
 #endif
     return SPIINVALID;
@@ -153,6 +150,7 @@ void spiInitDevice(SPIDevice device)
     IOInit(IOGetByTag(spi->sck),  OWNER_SPI_SCK,  RESOURCE_INDEX(device));
     IOInit(IOGetByTag(spi->miso), OWNER_SPI_MISO, RESOURCE_INDEX(device));
     IOInit(IOGetByTag(spi->mosi), OWNER_SPI_MOSI, RESOURCE_INDEX(device));
+    IOInit(IOGetByTag(spi->nss), OWNER_SPI_CS, RESOURCE_INDEX(device));
 
 #if defined(STM32F3) || defined(STM32F4)
     IOConfigGPIOAF(IOGetByTag(spi->sck),  SPI_IO_AF_CFG, spi->af);
@@ -176,14 +174,22 @@ void spiInitDevice(SPIDevice device)
 #endif
 
 #ifdef XMC4500_F100x1024
-    IOConfigGPIOAF(IOGetByTag(spi->sck), XMC_GPIO_MODE_OUTPUT_PUSH_PULL, spi->af_clk);
-    IOConfigGPIOAF(IOGetByTag(spi->mosi), XMC_GPIO_MODE_OUTPUT_PUSH_PULL, spi->af_mosi);
-    IOConfigGPIO(IOGetByTag(spi->miso), XMC_GPIO_MODE_INPUT_TRISTATE);
-
-    if(spi->nss)
+    if (spi->isSlave)
     {
-    	IOInit(IOGetByTag(spi->nss), OWNER_SPI_CS, RESOURCE_INDEX(device));
-    	IOConfigGPIOAF(IOGetByTag(spi->nss), XMC_GPIO_MODE_OUTPUT_PUSH_PULL, spi->af_nss);
+    	IOConfigGPIO(IOGetByTag(spi->sck), XMC_GPIO_MODE_INPUT_TRISTATE);
+		IOConfigGPIO(IOGetByTag(spi->mosi), XMC_GPIO_MODE_INPUT_TRISTATE);
+		IOConfigGPIOAF(IOGetByTag(spi->miso), XMC_GPIO_MODE_OUTPUT_PUSH_PULL, spi->af_source_miso);
+		IOConfigGPIO(IOGetByTag(spi->nss), XMC_GPIO_MODE_INPUT_TRISTATE);
+
+		spi->txBufferHead = spi->txBufferTail = 0;
+		spi->rxBufferHead = spi->rxBufferTail = 0;
+    }
+    else
+    {
+		IOConfigGPIOAF(IOGetByTag(spi->sck), XMC_GPIO_MODE_OUTPUT_PUSH_PULL, spi->af_source_clk);
+		IOConfigGPIOAF(IOGetByTag(spi->mosi), XMC_GPIO_MODE_OUTPUT_PUSH_PULL, spi->af_source_mosi);
+		IOConfigGPIO(IOGetByTag(spi->miso), XMC_GPIO_MODE_INPUT_TRISTATE);
+		IOConfigGPIOAF(IOGetByTag(spi->nss), XMC_GPIO_MODE_OUTPUT_PUSH_PULL, spi->af_source_nss);
     }
 #endif
 
@@ -221,27 +227,43 @@ void spiInitDevice(SPIDevice device)
         IOHi(IOGetByTag(spi->nss));
     }
 #else
-    XMC_SPI_CH_CONFIG_t spi_config =
+    XMC_SPI_CH_CONFIG_t spi_config;
+
+    if (spi->isSlave)
     {
-    	.baudrate = 1000000,
-		.bus_mode = XMC_SPI_CH_BUS_MODE_MASTER,
-		.selo_inversion = XMC_SPI_CH_SLAVE_SEL_INV_TO_MSLS,
-		.parity_mode = XMC_USIC_CH_PARITY_MODE_NONE
-    };
+    	spi_config.bus_mode = XMC_SPI_CH_BUS_MODE_SLAVE;
+    }
+    else
+    {
+		spi_config.baudrate = 1000000;
+		spi_config.bus_mode = XMC_SPI_CH_BUS_MODE_MASTER;
+		spi_config.selo_inversion = XMC_SPI_CH_SLAVE_SEL_INV_TO_MSLS;
+		spi_config.parity_mode = XMC_USIC_CH_PARITY_MODE_NONE;
+    }
+    spi_config.parity_mode = XMC_USIC_CH_PARITY_MODE_NONE;
 
     XMC_SPI_CH_Init((XMC_USIC_CH_t*)spi->dev, &spi_config);
-    XMC_SPI_CH_DisableFEM((XMC_USIC_CH_t*)spi->dev);
+
     XMC_SPI_CH_SetBitOrderMsbFirst((XMC_USIC_CH_t*)spi->dev);
     XMC_SPI_CH_SetWordLength((XMC_USIC_CH_t*)spi->dev, 8);
     XMC_SPI_CH_SetFrameLength((XMC_USIC_CH_t*)spi->dev,64);
 
-    XMC_SPI_CH_ConfigureShiftClockOutput((XMC_USIC_CH_t*)spi->dev, XMC_SPI_CH_BRG_SHIFT_CLOCK_PASSIVE_LEVEL_0_DELAY_DISABLED, XMC_SPI_CH_BRG_SHIFT_CLOCK_OUTPUT_SCLK);
-    XMC_SPI_CH_SetSlaveSelectDelay((XMC_USIC_CH_t*)spi->dev, 2);
+    if (spi->isSlave)
+    {
+    	XMC_SPI_CH_SetInputSource((XMC_USIC_CH_t*)spi->dev, XMC_SPI_CH_INPUT_DIN0, spi->af_source_mosi);
+    	XMC_SPI_CH_SetInputSource((XMC_USIC_CH_t*)spi->dev, XMC_SPI_CH_INPUT_SLAVE_SCLKIN, spi->af_source_clk);
+    	XMC_SPI_CH_SetInputSource((XMC_USIC_CH_t*)spi->dev, XMC_SPI_CH_INPUT_SLAVE_SELIN, spi->af_source_nss);
+    	XMC_SPI_CH_EnableInputInversion((XMC_USIC_CH_t*)spi->dev, XMC_SPI_CH_INPUT_SLAVE_SELIN);
+    }
+    else
+    {
+    	XMC_SPI_CH_DisableFEM((XMC_USIC_CH_t*)spi->dev);
+    	XMC_SPI_CH_ConfigureShiftClockOutput((XMC_USIC_CH_t*)spi->dev, XMC_SPI_CH_BRG_SHIFT_CLOCK_PASSIVE_LEVEL_0_DELAY_DISABLED, XMC_SPI_CH_BRG_SHIFT_CLOCK_OUTPUT_SCLK);
+    	XMC_SPI_CH_SetSlaveSelectDelay((XMC_USIC_CH_t*)spi->dev, 2);
 
-    XMC_SPI_CH_SetInputSource((XMC_USIC_CH_t*)spi->dev, XMC_SPI_CH_INPUT_DIN0, spi->miso_source);
-    XMC_SPI_CH_Start((XMC_USIC_CH_t*)spi->dev);
-
-    XMC_SPI_CH_EnableSlaveSelect((XMC_USIC_CH_t*)spi->dev, spi->en_nss);
+    	XMC_SPI_CH_SetInputSource((XMC_USIC_CH_t*)spi->dev, XMC_SPI_CH_INPUT_DIN0, spi->af_source_miso);
+    	XMC_SPI_CH_EnableSlaveSelect((XMC_USIC_CH_t*)spi->dev, spi->en_nss);
+    }
 
     switch((uint32_t)spi->dev)
     {
@@ -258,6 +280,101 @@ void spiInitDevice(SPIDevice device)
 		    XMC_USIC_CH_RXFIFO_Configure((XMC_USIC_CH_t*)spi->dev, 48, XMC_USIC_CH_FIFO_SIZE_16WORDS, 0);
 			break;
     }
+
+    if (spi->isSlave)
+    {
+    	 switch(spi->irqn_tx)
+		 {
+			case USIC0_0_IRQn:
+			case USIC1_0_IRQn:
+			case USIC2_0_IRQn:
+			 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 0);
+				break;
+			case USIC0_1_IRQn:
+			case USIC1_1_IRQn:
+			case USIC2_1_IRQn:
+			 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 1);
+				break;
+			case USIC0_2_IRQn:
+			case USIC1_2_IRQn:
+			case USIC2_2_IRQn:
+			 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 2);
+				break;
+			case USIC0_3_IRQn:
+			case USIC1_3_IRQn:
+			case USIC2_3_IRQn:
+			 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 3);
+				break;
+			case USIC0_4_IRQn:
+			case USIC1_4_IRQn:
+			case USIC2_4_IRQn:
+			 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 4);
+				break;
+			case USIC0_5_IRQn:
+			case USIC1_5_IRQn:
+			case USIC2_5_IRQn:
+			 XMC_USIC_CH_TXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_TXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 5);
+				break;
+		 }
+
+    	 switch(spi->irqn_rx)
+		 {
+			case USIC0_0_IRQn:
+			case USIC1_0_IRQn:
+			case USIC2_0_IRQn:
+				XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 0);
+				XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 0);
+				break;
+			case USIC0_1_IRQn:
+			case USIC1_1_IRQn:
+			case USIC2_1_IRQn:
+				XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 1);
+				XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 1);
+				break;
+			case USIC0_2_IRQn:
+			case USIC1_2_IRQn:
+			case USIC2_2_IRQn:
+				XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 2);
+				XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 2);
+				break;
+			case USIC0_3_IRQn:
+			case USIC1_3_IRQn:
+			case USIC2_3_IRQn:
+				XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 3);
+				XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 3);
+				break;
+			case USIC0_4_IRQn:
+			case USIC1_4_IRQn:
+			case USIC2_4_IRQn:
+				XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 4);
+				XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 4);
+				break;
+			case USIC0_5_IRQn:
+			case USIC1_5_IRQn:
+			case USIC2_5_IRQn:
+				XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_STANDARD, 5);
+				XMC_USIC_CH_RXFIFO_SetInterruptNodePointer((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_INTERRUPT_NODE_POINTER_ALTERNATE, 5);
+				break;
+		 }
+
+		 XMC_USIC_CH_TXFIFO_EnableEvent((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_TXFIFO_EVENT_CONF_STANDARD);
+		 XMC_USIC_CH_RXFIFO_EnableEvent((XMC_USIC_CH_t*)spi->dev, XMC_USIC_CH_RXFIFO_EVENT_CONF_STANDARD | XMC_USIC_CH_RXFIFO_EVENT_CONF_ALTERNATE);
+
+		NVIC_InitTypeDef NVIC_InitStructure;
+
+		NVIC_InitStructure.NVIC_IRQChannel = spi->irqn_rx;
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = NVIC_PRIORITY_BASE(spi->rxPriority);
+		NVIC_InitStructure.NVIC_IRQChannelSubPriority = NVIC_PRIORITY_SUB(spi->rxPriority);
+		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+		NVIC_Init(&NVIC_InitStructure);
+
+		NVIC_InitStructure.NVIC_IRQChannel = spi->irqn_tx;
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = NVIC_PRIORITY_BASE(spi->txPriority);
+		NVIC_InitStructure.NVIC_IRQChannelSubPriority = NVIC_PRIORITY_SUB(spi->txPriority);
+		NVIC_Init(&NVIC_InitStructure);
+    }
+
+    XMC_SPI_CH_Start((XMC_USIC_CH_t*)spi->dev);
 #endif
 }
 
@@ -508,4 +625,39 @@ void spiResetErrorCounter(SPI_TypeDef *instance)
     SPIDevice device = spiDeviceByInstance(instance);
     if (device != SPIINVALID)
         spiHardwareMap[device].errorCount = 0;
+}
+
+void spiSlaveTxIrqHandler(spiDevice_t *spi)
+{
+	if (spi->txBufferTail != spi->txBufferHead)
+	{
+		while(XMC_USIC_CH_TXFIFO_IsFull((XMC_USIC_CH_t*)spi->dev));
+		XMC_SPI_CH_Transmit((XMC_USIC_CH_t*)spi->dev, spi->txBuffer[spi->txBufferTail++], XMC_SPI_CH_MODE_STANDARD);
+		if (spi->txBufferTail >= SPI_BUFFER_SIZE)
+			spi->txBufferTail = 0;
+	}
+}
+
+void spiSlaveRxIrqHandler(spiDevice_t *spi)
+{
+	while (!XMC_USIC_CH_RXFIFO_IsEmpty((XMC_USIC_CH_t*)spi->dev))
+	{
+		spi->rxBuffer[spi->rxBufferHead++] = XMC_SPI_CH_GetReceivedData((XMC_USIC_CH_t*)spi->dev);
+		if (spi->rxBufferHead >= SPI_BUFFER_SIZE)
+		{
+			spi->rxBufferHead = 0;
+		}
+	}
+}
+
+void USIC0_2_IRQHandler()
+{
+	spiDevice_t *spi = &(spiHardwareMap[SPIDEV_1]);
+	spiSlaveTxIrqHandler(spi);
+}
+
+void USIC0_3_IRQHandler()
+{
+	spiDevice_t *spi = &(spiHardwareMap[SPIDEV_1]);
+	spiSlaveRxIrqHandler(spi);
 }
