@@ -129,6 +129,14 @@ static void taskHandleSerial(timeUs_t currentTimeUs)
     mspSerialProcess(evaluateMspData, mspFcProcessCommand, mspFcProcessReply);
 }
 
+#ifdef USE_SPIS1
+static void taskFastMspSerial(timeUs_t currentTimeUs)
+{
+	UNUSED(currentTimeUs);
+	mspFastSerialProcess(mspFcProcessCommand, mspFcProcessReply);
+}
+#endif
+
 void taskBatteryAlerts(timeUs_t currentTimeUs)
 {
     UNUSED(currentTimeUs);
@@ -309,6 +317,11 @@ void fcTasksInit(void)
 #ifdef RADAR
     setTaskEnabled(TASK_RADAR, sensors(SENSOR_RADAR));
 #endif
+
+#ifdef USE_SPIS1
+    setTaskEnabled(TASK_FAST_MSP, true);
+#endif
+
 #ifdef USE_DASHBOARD
     setTaskEnabled(TASK_DASHBOARD, feature(FEATURE_DASHBOARD));
 #endif
@@ -412,6 +425,15 @@ cfTask_t cfTasks[TASK_COUNT] = {
         .staticPriority = TASK_PRIORITY_LOW,
 #endif
     },
+
+#ifdef USE_SPIS1
+	[TASK_FAST_MSP] = {
+		.taskName = "FASTMSP",
+		.taskFunc = taskFastMspSerial,
+		.desiredPeriod = TASK_PERIOD_HZ(1000),
+		.staticPriority = TASK_PRIORITY_HIGH,
+	},
+#endif
 
 #ifndef USE_OSD_SLAVE
     [TASK_DISPATCH] = {

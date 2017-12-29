@@ -21,6 +21,7 @@
 
 // Each MSP port requires state and a receive buffer, revisit this default if someone needs more than 3 MSP ports.
 #define MAX_MSP_PORT_COUNT 3
+#define MAX_FAST_MSP_PORT_COUNT 1
 
 #define MSP_PORT_INBUF_SIZE 192
 #ifdef USE_FLASHFS
@@ -50,6 +51,7 @@ typedef struct mspPort_s {
 void mspSerialInit(void);
 bool mspSerialWaiting(void);
 void mspSerialProcess(mspEvaluateNonMspData_e evaluateNonMspData, mspProcessCommandFnPtr mspProcessCommandFn, mspProcessReplyFnPtr mspProcessReplyFn);
+void mspFastSerialProcess(mspProcessCommandFnPtr mspProcessCommandFn, mspProcessReplyFnPtr mspProcessReplyFn);
 void mspSerialAllocatePorts(void);
 void mspSerialReleasePortIfAllocated(struct serialPort_s *serialPort);
 int mspSerialPush(uint8_t cmd, uint8_t *data, int datalen, mspDirection_e direction);

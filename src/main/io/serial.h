@@ -46,6 +46,7 @@ typedef enum {
     FUNCTION_VTX_TRAMP           = (1 << 13), // 8192
     FUNCTION_RCSPLIT             = (1 << 14), // 16384
 	FUNCTION_RADAR_RX			 = (1 << 15), // 32768
+	FUNCTION_FAST_MSP			 = (1 << 16), // 65536
 } serialPortFunction_e;
 
 typedef enum {
@@ -108,7 +109,7 @@ serialPort_t *findNextSharedSerialPort(uint16_t functionMask, serialPortFunction
 // configuration
 //
 typedef struct serialPortConfig_s {
-    uint16_t functionMask;
+    uint32_t functionMask;
     serialPortIdentifier_e identifier;
     uint8_t msp_baudrateIndex;
     uint8_t gps_baudrateIndex;

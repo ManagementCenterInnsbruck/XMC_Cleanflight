@@ -31,6 +31,7 @@
 #include "msp/msp_serial.h"
 
 static mspPort_t mspPorts[MAX_MSP_PORT_COUNT];
+static mspPort_t mspFastPorts[MAX_FAST_MSP_PORT_COUNT];
 
 static void resetMspPort(mspPort_t *mspPortToReset, serialPort_t *serialPort)
 {
@@ -58,6 +59,24 @@ void mspSerialAllocatePorts(void)
 
         portConfig = findNextSerialPortConfig(FUNCTION_MSP);
     }
+
+    portIndex = 0;
+    portConfig = findSerialPortConfig(FUNCTION_FAST_MSP);
+	while (portConfig && portIndex < MAX_MSP_PORT_COUNT) {
+		mspPort_t *mspPort = &mspFastPorts[portIndex];
+		if (mspPort->port) {
+			portIndex++;
+			continue;
+		}
+
+		serialPort_t *serialPort = openSerialPort(portConfig->identifier, FUNCTION_FAST_MSP, NULL, baudRates[portConfig->msp_baudrateIndex], MODE_RXTX, SERIAL_NOT_INVERTED);
+		if (serialPort) {
+			resetMspPort(mspPort, serialPort);
+			portIndex++;
+		}
+
+		portConfig = findNextSerialPortConfig(FUNCTION_FAST_MSP);
+	}
 }
 
 void mspSerialReleasePortIfAllocated(serialPort_t *serialPort)
@@ -229,6 +248,45 @@ void mspSerialProcess(mspEvaluateNonMspData_e evaluateNonMspData, mspProcessComm
             if (!consumed && evaluateNonMspData == MSP_EVALUATE_NON_MSP_DATA) {
                 serialEvaluateNonMspData(mspPort->port, c);
             }
+
+            if (mspPort->c_state == MSP_COMMAND_RECEIVED) {
+                if (mspPort->packetType == MSP_PACKET_COMMAND) {
+                    mspPostProcessFn = mspSerialProcessReceivedCommand(mspPort, mspProcessCommandFn);
+                } else if (mspPort->packetType == MSP_PACKET_REPLY) {
+                    mspSerialProcessReceivedReply(mspPort, mspProcessReplyFn);
+                }
+
+                mspPort->c_state = MSP_IDLE;
+                break; // process one command at a time so as not to block.
+            }
+        }
+
+        if (mspPostProcessFn) {
+            waitForSerialPortToFinishTransmitting(mspPort->port);
+            mspPostProcessFn(mspPort->port);
+        }
+    }
+}
+
+/*
+ * Process MSP commands from serial ports configured as MSP ports.
+ *
+ * Called periodically by the scheduler.
+ */
+void mspFastSerialProcess(mspProcessCommandFnPtr mspProcessCommandFn, mspProcessReplyFnPtr mspProcessReplyFn)
+{
+    for (uint8_t portIndex = 0; portIndex < MAX_FAST_MSP_PORT_COUNT; portIndex++) {
+        mspPort_t * const mspPort = &mspFastPorts[portIndex];
+        if (!mspPort->port) {
+            continue;
+        }
+
+        mspPostProcessFnPtr mspPostProcessFn = NULL;
+
+        while (serialRxBytesWaiting(mspPort->port)) {
+
+            const uint8_t c = serialRead(mspPort->port);
+            mspSerialProcessReceivedData(mspPort, c);
 
             if (mspPort->c_state == MSP_COMMAND_RECEIVED) {
                 if (mspPort->packetType == MSP_PACKET_COMMAND) {

@@ -161,12 +161,12 @@ void pgResetFn_serialConfig(serialConfig_t *serialConfig)
 #ifdef USE_SPIS1
     serialPortConfig_t *serialMspSpis = serialFindPortConfiguration(SERIAL_PORT_SPIS1);
     if (serialMspSpis) {
-    	serialMspSpis->functionMask = FUNCTION_MSP;
+    	serialMspSpis->functionMask = FUNCTION_FAST_MSP;
     }
 #endif
 
     serialConfig->reboot_character = 'R';
-    serialConfig->serial_update_rate_hz = 1000;
+    serialConfig->serial_update_rate_hz = 100;
 }
 
 baudRate_e lookupBaudRateIndex(uint32_t baudRate)

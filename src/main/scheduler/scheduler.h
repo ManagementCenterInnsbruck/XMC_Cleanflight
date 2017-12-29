@@ -118,6 +118,10 @@ typedef enum {
     TASK_RCSPLIT,
 #endif
 
+#ifdef USE_SPIS1
+	TASK_FAST_MSP,
+#endif
+
     /* Count of real tasks */
     TASK_COUNT,
 
