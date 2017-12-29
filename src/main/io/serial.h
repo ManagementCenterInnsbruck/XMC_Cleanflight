@@ -82,7 +82,8 @@ typedef enum {
     SERIAL_PORT_USART8,
     SERIAL_PORT_USB_VCP = 20,
     SERIAL_PORT_SOFTSERIAL1 = 30,
-    SERIAL_PORT_SOFTSERIAL2
+    SERIAL_PORT_SOFTSERIAL2,
+	SERIAL_PORT_SPIS1 = 40,
 } serialPortIdentifier_e;
 
 extern const serialPortIdentifier_e serialPortIdentifiers[SERIAL_PORT_COUNT];

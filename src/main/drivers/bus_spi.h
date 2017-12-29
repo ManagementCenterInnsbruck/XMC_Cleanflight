@@ -21,6 +21,12 @@
 #include "rcc_types.h"
 #include "nvic.h"
 
+#if defined(USE_SPIS1)
+#ifndef USE_SPIS
+#define USE_SPIS
+#endif
+#endif
+
 #if defined(STM32F4) || defined(STM32F3)
 #define SPI_IO_AF_CFG      IO_CONFIG(GPIO_Mode_AF,  GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL)
 #define SPI_IO_AF_SCK_CFG  IO_CONFIG(GPIO_Mode_AF,  GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_DOWN)
@@ -38,10 +44,13 @@
 #define SPI_IO_AF_MISO_CFG    IO_CONFIG(GPIO_Mode_IN_FLOATING, GPIO_Speed_50MHz)
 #define SPI_IO_CS_CFG         IO_CONFIG(GPIO_Mode_Out_PP,      GPIO_Speed_50MHz)
 #elif defined(XMC4500_F100x1024)
-
-#define SPI_BUFFER_SIZE	512
-
 typedef USIC_CH_TypeDef SPI_TypeDef;
+#endif
+
+#ifdef USE_SPIS
+#include "drivers/serial.h"
+
+#define SPIS_BUFFER_SIZE 512
 #endif
 
 /*
@@ -81,6 +90,9 @@ typedef enum SPIDevice {
 } SPIDevice;
 
 typedef struct SPIDevice_s {
+#ifdef USE_SPIS
+    serialPort_t port;
+#endif
     SPI_TypeDef *dev;
     ioTag_t nss;
     ioTag_t sck;
@@ -95,20 +107,19 @@ typedef struct SPIDevice_s {
     uint32_t af_source_nss;
     uint32_t af_source_miso;
     XMC_SPI_CH_SLAVE_SELECT_t en_nss;
+
     uint8_t isSlave;
 
+#ifdef USE_SPIS
     uint8_t irqn_rx;
     uint8_t irqn_tx;
 
     uint8_t txPriority;
     uint8_t rxPriority;
 
-    uint8_t rxBuffer[SPI_BUFFER_SIZE];
-    uint8_t txBuffer[SPI_BUFFER_SIZE];
-    uint32_t rxBufferHead;
-    uint32_t rxBufferTail;
-    uint32_t txBufferHead;
-    uint32_t txBufferTail;
+    volatile uint8_t rxBuffer[SPIS_BUFFER_SIZE];
+    volatile uint8_t txBuffer[SPIS_BUFFER_SIZE];
+#endif
 #endif
     volatile uint16_t errorCount;
     bool leadingEdge;
@@ -133,4 +144,8 @@ SPIDevice spiDeviceByInstance(SPI_TypeDef *instance);
 #if defined(USE_HAL_DRIVER)
 SPI_HandleTypeDef* spiHandleByInstance(SPI_TypeDef *instance);
 DMA_HandleTypeDef* spiSetDMATransmit(DMA_Stream_TypeDef *Stream, uint32_t Channel, SPI_TypeDef *Instance, uint8_t *pData, uint16_t Size);
+#endif
+
+#ifdef USE_SPIS
+serialPort_t *spisOpen(SPIDevice device, serialReceiveCallbackPtr rxCallback, uint32_t baudRate, portMode_t mode, portOptions_t options);
 #endif

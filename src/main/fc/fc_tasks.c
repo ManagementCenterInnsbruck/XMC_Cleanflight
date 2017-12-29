@@ -497,7 +497,6 @@ cfTask_t cfTasks[TASK_COUNT] = {
     },
 #endif
 
-
 #if defined(BARO) || defined(SONAR)
     [TASK_ALTITUDE] = {
         .taskName = "ALTITUDE",

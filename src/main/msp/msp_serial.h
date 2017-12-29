@@ -22,26 +22,6 @@
 // Each MSP port requires state and a receive buffer, revisit this default if someone needs more than 3 MSP ports.
 #define MAX_MSP_PORT_COUNT 3
 
-typedef enum {
-    MSP_IDLE,
-    MSP_HEADER_START,
-    MSP_HEADER_M,
-    MSP_HEADER_ARROW,
-    MSP_HEADER_SIZE,
-    MSP_HEADER_CMD,
-    MSP_COMMAND_RECEIVED
-} mspState_e;
-
-typedef enum {
-    MSP_PACKET_COMMAND,
-    MSP_PACKET_REPLY
-} mspPacketType_e;
-
-typedef enum {
-    MSP_EVALUATE_NON_MSP_DATA,
-    MSP_SKIP_NON_MSP_DATA
-} mspEvaluateNonMspData_e;
-
 #define MSP_PORT_INBUF_SIZE 192
 #ifdef USE_FLASHFS
 #ifdef STM32F1

@@ -130,8 +130,6 @@ static uint8_t mspSerialChecksumBuf(uint8_t checksum, const uint8_t *data, int l
     return checksum;
 }
 
-#define JUMBO_FRAME_SIZE_LIMIT 255
-
 static int mspSerialEncode(mspPort_t *msp, mspPacket_t *packet)
 {
     serialBeginWrite(msp->port);
@@ -145,7 +143,6 @@ static int mspSerialEncode(mspPort_t *msp, mspPacket_t *packet)
         packet->cmd
     };
     int hdrLen = 5;
-#define CHECKSUM_STARTPOS 3  // checksum starts from mspLen field
     if (len >= JUMBO_FRAME_SIZE_LIMIT) {
         hdrLen += 2;
         hdr[5] = len & 0xff;

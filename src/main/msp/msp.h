@@ -19,6 +19,9 @@
 
 #include "common/streambuf.h"
 
+#define JUMBO_FRAME_SIZE_LIMIT 255
+#define CHECKSUM_STARTPOS 3  // checksum starts from mspLen field
+
 // return positive for ACK, negative on error, zero for no reply
 typedef enum {
     MSP_RESULT_ACK = 1,
@@ -38,6 +41,26 @@ typedef struct mspPacket_s {
     int16_t result;
     uint8_t direction;
 } mspPacket_t;
+
+typedef enum {
+    MSP_IDLE,
+    MSP_HEADER_START,
+    MSP_HEADER_M,
+    MSP_HEADER_ARROW,
+    MSP_HEADER_SIZE,
+    MSP_HEADER_CMD,
+    MSP_COMMAND_RECEIVED
+} mspState_e;
+
+typedef enum {
+    MSP_PACKET_COMMAND,
+    MSP_PACKET_REPLY
+} mspPacketType_e;
+
+typedef enum {
+    MSP_EVALUATE_NON_MSP_DATA,
+    MSP_SKIP_NON_MSP_DATA
+} mspEvaluateNonMspData_e;
 
 struct serialPort_s;
 typedef void (*mspPostProcessFnPtr)(struct serialPort_s *port); // msp post process function, used for gracefully handling reboots, etc.

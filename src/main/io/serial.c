@@ -50,6 +50,10 @@
 #include "drivers/serial_usb_vcp.h"
 #endif
 
+#ifdef USE_SPIS1
+#include "drivers/bus_spi.h"
+#endif
+
 #include "io/serial.h"
 
 #include "fc/cli.h"
@@ -95,6 +99,9 @@ const serialPortIdentifier_e serialPortIdentifiers[SERIAL_PORT_COUNT] = {
 #endif
 #ifdef USE_SOFTSERIAL2
     SERIAL_PORT_SOFTSERIAL2,
+#endif
+#ifdef USE_SPIS1
+	SERIAL_PORT_SPIS1,
 #endif
 };
 
@@ -151,8 +158,15 @@ void pgResetFn_serialConfig(serialConfig_t *serialConfig)
     }
 #endif
 
+#ifdef USE_SPIS1
+    serialPortConfig_t *serialMspSpis = serialFindPortConfiguration(SERIAL_PORT_SPIS1);
+    if (serialMspSpis) {
+    	serialMspSpis->functionMask = FUNCTION_MSP;
+    }
+#endif
+
     serialConfig->reboot_character = 'R';
-    serialConfig->serial_update_rate_hz = 100;
+    serialConfig->serial_update_rate_hz = 1000;
 }
 
 baudRate_e lookupBaudRateIndex(uint32_t baudRate)
@@ -411,6 +425,11 @@ serialPort_t *openSerialPort(
         case SERIAL_PORT_SOFTSERIAL2:
             serialPort = openSoftSerial(SOFTSERIAL2, rxCallback, baudRate, mode, options);
             break;
+#endif
+#ifdef USE_SPIS1
+        case SERIAL_PORT_SPIS1:
+        	serialPort = spisOpen(SPIDEV_1, rxCallback, baudRate, mode, options);
+        	break;
 #endif
         default:
             break;
