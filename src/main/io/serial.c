@@ -161,7 +161,7 @@ void pgResetFn_serialConfig(serialConfig_t *serialConfig)
 #ifdef USE_SPIS1
     serialPortConfig_t *serialMspSpis = serialFindPortConfiguration(SERIAL_PORT_SPIS1);
     if (serialMspSpis) {
-    	serialMspSpis->functionMask = FUNCTION_FAST_MSP;
+    	serialMspSpis->functionMask = FUNCTION_MSP;
     }
 #endif
 

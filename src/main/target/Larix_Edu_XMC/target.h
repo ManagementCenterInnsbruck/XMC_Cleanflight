@@ -41,6 +41,11 @@
 #define USE_MPU9250_MAG
 #define USE_MAG_AK8963
 
+#define USE_ADC
+#define VBAT_ADC_PIN            P147
+
+#define VBAT_SCALE_DEFAULT 46
+
 #define USE_SERIALRX_JETIEXBUS
 #define USE_RX_MSP
 
@@ -54,6 +59,8 @@
 #define TARGET_IO_PORT4         0xffff
 #define TARGET_IO_PORT5         0xffff
 #define TARGET_IO_PORT6         0xffff
+#define TARGET_IO_PORT14        0xffff
+#define TARGET_IO_PORT15        0xffff
 
 #define USABLE_TIMER_CHANNEL_COUNT 8
 #define USED_TIMERS             (TIM_N(1) | TIM_N(2) | TIM_N(3) | TIM_N(4))

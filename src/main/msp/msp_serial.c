@@ -43,40 +43,37 @@ static void resetMspPort(mspPort_t *mspPortToReset, serialPort_t *serialPort)
 void mspSerialAllocatePorts(void)
 {
     uint8_t portIndex = 0;
+    uint8_t fastPortIndex = 0;
+
     serialPortConfig_t *portConfig = findSerialPortConfig(FUNCTION_MSP);
-    while (portConfig && portIndex < MAX_MSP_PORT_COUNT) {
-        mspPort_t *mspPort = &mspPorts[portIndex];
+    while (portConfig && (portIndex < MAX_MSP_PORT_COUNT || fastPortIndex < MAX_FAST_MSP_PORT_COUNT)) {
+        mspPort_t *mspPort;
+
+        if (portConfig->identifier >= SERIAL_PORT_SPIS1)
+        	mspPort = &mspFastPorts[fastPortIndex];
+        else
+        	mspPort = &mspPorts[portIndex];
+
         if (mspPort->port) {
-            portIndex++;
+        	if (portConfig->identifier >= SERIAL_PORT_SPIS1)
+        		fastPortIndex++;
+        	else
+        		portIndex++;
+
             continue;
         }
 
         serialPort_t *serialPort = openSerialPort(portConfig->identifier, FUNCTION_MSP, NULL, baudRates[portConfig->msp_baudrateIndex], MODE_RXTX, SERIAL_NOT_INVERTED);
         if (serialPort) {
             resetMspPort(mspPort, serialPort);
-            portIndex++;
+            if (portConfig->identifier >= SERIAL_PORT_SPIS1)
+            	fastPortIndex++;
+            else
+            	portIndex++;
         }
 
         portConfig = findNextSerialPortConfig(FUNCTION_MSP);
     }
-
-    portIndex = 0;
-    portConfig = findSerialPortConfig(FUNCTION_FAST_MSP);
-	while (portConfig && portIndex < MAX_MSP_PORT_COUNT) {
-		mspPort_t *mspPort = &mspFastPorts[portIndex];
-		if (mspPort->port) {
-			portIndex++;
-			continue;
-		}
-
-		serialPort_t *serialPort = openSerialPort(portConfig->identifier, FUNCTION_FAST_MSP, NULL, baudRates[portConfig->msp_baudrateIndex], MODE_RXTX, SERIAL_NOT_INVERTED);
-		if (serialPort) {
-			resetMspPort(mspPort, serialPort);
-			portIndex++;
-		}
-
-		portConfig = findNextSerialPortConfig(FUNCTION_FAST_MSP);
-	}
 }
 
 void mspSerialReleasePortIfAllocated(serialPort_t *serialPort)
