@@ -55,8 +55,16 @@ typedef uint32_t timCCR_t;
 typedef uint32_t timCCER_t;
 typedef uint32_t timSR_t;
 typedef uint32_t timCNT_t;
-typedef uint32_t TIM_TypeDef;
 typedef uint32_t TIM_OCInitTypeDef;
+
+typedef struct
+{
+	uint32_t* slice_ptr;
+	uint8_t slice_no;
+	uint32_t* module;
+	uint8_t isCCU8;
+}TIM_TypeDef;
+
 #else
 #error "Unknown CPU defined"
 #endif
@@ -91,19 +99,11 @@ typedef struct timerOvrHandlerRec_s {
 typedef struct timerDef_s {
     TIM_TypeDef *TIMx;
     rccPeriphTag_t rcc;
-#ifdef XMC4500_F100x1024
-    uint32_t *ccu_global;
-    uint8_t isCCU8;
-#endif
     uint8_t inputIrq;
 } timerDef_t;
 
 typedef struct timerHardware_s {
     TIM_TypeDef *tim;
-#ifdef XMC4500_F100x1024
-    uint32_t* ccu_global;
-    uint8_t isCCU8;
-#endif
     ioTag_t tag;
     uint8_t channel;
     timerUsageFlag_e usageFlags;
@@ -149,6 +149,7 @@ typedef enum {
 #define HARDWARE_TIMER_DEFINITION_COUNT 14
 #elif defined(XMC4500_F100x1024)
 #define HARDWARE_TIMER_DEFINITION_COUNT 24
+extern TIM_TypeDef XMCTimer[];
 #endif
 
 extern const timerHardware_t timerHardware[];

@@ -90,7 +90,7 @@ const uartHardware_t uartHardware[UARTDEV_COUNT] = {
         .txDMAChannel = UART1_TX_DMA,
         .txPriority = NVIC_PRIO_SERIALUART1_TXDMA,
         .rxPriority = NVIC_PRIO_SERIALUART1_RXDMA,
-#if UART1_USIC == U1C1
+#if defined(UART1_USIC) && UART1_USIC == U1C1
         .reg = USIC1_CH1,
         .rxPins = { IO_TAG_NONE, IO_TAG_NONE, IO_TAG_NONE, DEFIO_TAG_E(P00) },
         .txPins = { DEFIO_TAG_E(P01) },

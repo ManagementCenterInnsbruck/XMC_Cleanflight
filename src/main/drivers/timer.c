@@ -255,55 +255,10 @@ void timerNVICConfigure(uint8_t irq)
 void configTimeBase(TIM_TypeDef *tim, uint16_t period, uint8_t mhz)
 {
 #ifdef XMC4500_F100x1024
-	uint32_t* module = NULL;
-	uint8_t prescaler = 0;
-	uint8_t isCCU8 = 0;
 
-	prescaler = log2f(SystemCoreClock / (mhz * 1000000.0f));
+	uint8_t prescaler = log2f(SystemCoreClock / (mhz * 1000000.0f));
 
-	switch ((uint32_t)tim)
-	{
-		case (uint32_t)CCU40_CC40:
-		case (uint32_t)CCU40_CC41:
-		case (uint32_t)CCU40_CC42:
-		case (uint32_t)CCU40_CC43:
-			module = (uint32_t*)CCU40;
-			break;
-		case (uint32_t)CCU41_CC40:
-		case (uint32_t)CCU41_CC41:
-		case (uint32_t)CCU41_CC42:
-		case (uint32_t)CCU41_CC43:
-			module = (uint32_t*)CCU41;
-			break;
-		case (uint32_t)CCU42_CC40:
-		case (uint32_t)CCU42_CC41:
-		case (uint32_t)CCU42_CC42:
-		case (uint32_t)CCU42_CC43:
-			module = (uint32_t*)CCU42;
-			break;
-		case (uint32_t)CCU43_CC40:
-		case (uint32_t)CCU43_CC41:
-		case (uint32_t)CCU43_CC42:
-		case (uint32_t)CCU43_CC43:
-			module = (uint32_t*)CCU43;
-			break;
-		case (uint32_t)CCU80_CC80:
-		case (uint32_t)CCU80_CC81:
-		case (uint32_t)CCU80_CC82:
-		case (uint32_t)CCU80_CC83:
-			module = (uint32_t*)CCU80;
-			isCCU8 = 1;
-			break;
-		case (uint32_t)CCU81_CC80:
-		case (uint32_t)CCU81_CC81:
-		case (uint32_t)CCU81_CC82:
-		case (uint32_t)CCU81_CC83:
-			module = (uint32_t*)CCU81;
-			isCCU8 = 1;
-			break;
-	}
-
-	if (isCCU8)
+	if (tim->isCCU8)
 	{
 		XMC_CCU8_SLICE_COMPARE_CONFIG_t slice_config;
 		memset(&slice_config, 0, sizeof(slice_config));
@@ -312,9 +267,9 @@ void configTimeBase(TIM_TypeDef *tim, uint16_t period, uint8_t mhz)
 		slice_config.invert_out0 = 1;
 		slice_config.timer_mode = XMC_CCU8_SLICE_TIMER_COUNT_MODE_CA;
 #endif
-		XMC_CCU8_SLICE_CompareInit((XMC_CCU8_SLICE_t*)tim, &slice_config);
-		XMC_CCU8_SLICE_SetTimerPeriodMatch((XMC_CCU8_SLICE_t*)tim, period - 1);
-		XMC_CCU8_EnableShadowTransfer((XMC_CCU8_MODULE_t*)module, 0xFFFF);
+		XMC_CCU8_SLICE_CompareInit((XMC_CCU8_SLICE_t*)tim->slice_ptr, &slice_config);
+		XMC_CCU8_SLICE_SetTimerPeriodMatch((XMC_CCU8_SLICE_t*)tim->slice_ptr, period - 1);
+		XMC_CCU8_EnableShadowTransfer((XMC_CCU8_MODULE_t*)tim->module, 1<<4*tim->slice_no);
 	}
 	else
 	{
@@ -324,7 +279,7 @@ void configTimeBase(TIM_TypeDef *tim, uint16_t period, uint8_t mhz)
 
 #ifdef USE_ONBOARD_ESC
 		slice_config.timer_mode = XMC_CCU4_SLICE_TIMER_COUNT_MODE_CA;
-		switch ((uint32_t)tim)
+		switch ((uint32_t)tim->slice_ptr)
 		{
 			case (uint32_t)CCU40_CC40:
 			case (uint32_t)CCU40_CC42:
@@ -348,9 +303,9 @@ void configTimeBase(TIM_TypeDef *tim, uint16_t period, uint8_t mhz)
 		slice_config.passive_level = XMC_CCU4_SLICE_OUTPUT_PASSIVE_LEVEL_HIGH;
 #endif
 
-		XMC_CCU4_SLICE_CompareInit((XMC_CCU4_SLICE_t*)tim, &slice_config);
-		XMC_CCU4_SLICE_SetTimerPeriodMatch((XMC_CCU4_SLICE_t*)tim, period - 1);
-		XMC_CCU4_EnableShadowTransfer((XMC_CCU4_MODULE_t*)module, 0x1111);
+		XMC_CCU4_SLICE_CompareInit((XMC_CCU4_SLICE_t*)tim->slice_ptr, &slice_config);
+		XMC_CCU4_SLICE_SetTimerPeriodMatch((XMC_CCU4_SLICE_t*)tim->slice_ptr, period - 1);
+		XMC_CCU4_EnableShadowTransfer((XMC_CCU4_MODULE_t*)tim->module, 1<<4*tim->slice_no);
 	}
 
 #else
@@ -374,9 +329,7 @@ void timerConfigure(const timerHardware_t *timerHardwarePtr, uint16_t period, ui
 {
     configTimeBase(timerHardwarePtr->tim, period, mhz);
 
-#ifdef XMC4500_F100x1024
-
-#else
+#ifndef XMC4500_F100x1024
     TIM_Cmd(timerHardwarePtr->tim, ENABLE);
 #endif
 
@@ -629,7 +582,7 @@ void timerChConfigCallbacks(const timerHardware_t *timHw, timerCCHandlerRec_t *e
 volatile timCCR_t* timerChCCR(const timerHardware_t *timHw)
 {
 #ifdef XMC4500_F100x1024
-	return (volatile timCCR_t*)&((XMC_CCU4_SLICE_t*)timHw->tim)->CRS;
+	return (volatile timCCR_t*)&((XMC_CCU4_SLICE_t*)timHw->tim->slice_ptr)->CRS;
 #else
     return (volatile timCCR_t*)((volatile char*)&timHw->tim->CCR1 + timHw->channel);
 #endif
@@ -853,10 +806,10 @@ void timerInit(void)
 
     for (int i=0; i<HARDWARE_TIMER_DEFINITION_COUNT; i+=CC_CHANNELS_PER_TIMER)
     {
-    	if(timerDefinitions[i].isCCU8)
-    		XMC_CCU8_Init((XMC_CCU8_MODULE_t*)timerDefinitions[i].ccu_global, XMC_CCU8_SLICE_MCMS_ACTION_TRANSFER_PR_CR);
+    	if(timerDefinitions[i].TIMx->isCCU8)
+    		XMC_CCU8_Init((XMC_CCU8_MODULE_t*)timerDefinitions[i].TIMx->module, XMC_CCU8_SLICE_MCMS_ACTION_TRANSFER_PR_CR);
     	else
-    		XMC_CCU4_Init((XMC_CCU4_MODULE_t*)timerDefinitions[i].ccu_global, XMC_CCU4_SLICE_MCMS_ACTION_TRANSFER_PR_CR);
+    		XMC_CCU4_Init((XMC_CCU4_MODULE_t*)timerDefinitions[i].TIMx->module, XMC_CCU4_SLICE_MCMS_ACTION_TRANSFER_PR_CR);
     }
 
     for (int timerIndex = 0; timerIndex < USABLE_TIMER_CHANNEL_COUNT; timerIndex++)

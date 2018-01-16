@@ -297,7 +297,7 @@ static void pwmEdgeCallback(timerCCHandlerRec_t *cbRec, captureCompare_t capture
 #if defined(USE_HAL_DRIVER)
         pwmICConfig(timerHardwarePtr->tim, timerHardwarePtr->channel, TIM_ICPOLARITY_FALLING);
 #elif defined(XMC4500_F100x1024)
-        pwmICConfig(timerHardwarePtr->tim, timerHardwarePtr->channel, 0);
+        pwmICConfig((TIM_TypeDef*)&timerHardwarePtr->tim, timerHardwarePtr->channel, 0);
 #else
         pwmICConfig(timerHardwarePtr->tim, timerHardwarePtr->channel, TIM_ICPolarity_Falling);
 #endif
@@ -313,7 +313,7 @@ static void pwmEdgeCallback(timerCCHandlerRec_t *cbRec, captureCompare_t capture
 #if defined(USE_HAL_DRIVER)
         pwmICConfig(timerHardwarePtr->tim, timerHardwarePtr->channel, TIM_ICPOLARITY_RISING);
 #elif defined(XMC4500_F100x1024)
-        pwmICConfig(timerHardwarePtr->tim, timerHardwarePtr->channel, 0);
+        pwmICConfig((TIM_TypeDef*)&timerHardwarePtr->tim, timerHardwarePtr->channel, 0);
 #else
         pwmICConfig(timerHardwarePtr->tim, timerHardwarePtr->channel, TIM_ICPolarity_Rising);
 #endif
@@ -406,7 +406,7 @@ void pwmRxInit(const pwmConfig_t *pwmConfig)
 #if defined(USE_HAL_DRIVER)
         pwmICConfig(timer->tim, timer->channel, TIM_ICPOLARITY_RISING);
 #elif defined(XMC4500_F100x1024)
-        pwmICConfig(timer->tim, timer->channel, 0);
+        pwmICConfig((TIM_TypeDef*)&timer->tim, timer->channel, 0);
 #else
         pwmICConfig(timer->tim, timer->channel, TIM_ICPolarity_Rising);
 #endif
@@ -471,7 +471,11 @@ void ppmRxInit(const ppmConfig_t *ppmConfig, uint8_t pwmProtocol)
         return;
     }
 
+#ifdef XMC4500_F100x1024
+    ppmAvoidPWMTimerClash((TIM_TypeDef*)&timer->tim, pwmProtocol);
+#else
     ppmAvoidPWMTimerClash(timer->tim, pwmProtocol);
+#endif
 
     port->mode = INPUT_MODE_PPM;
     port->timerHardware = timer;
@@ -494,7 +498,7 @@ void ppmRxInit(const ppmConfig_t *ppmConfig, uint8_t pwmProtocol)
 #if defined(USE_HAL_DRIVER)
     pwmICConfig(timer->tim, timer->channel, TIM_ICPOLARITY_RISING);
 #elif defined(XMC4500_F100x1024)
-    pwmICConfig(timer->tim, timer->channel, 0);
+    pwmICConfig((TIM_TypeDef*)&timer->tim, timer->channel, 0);
 #else
     pwmICConfig(timer->tim, timer->channel, TIM_ICPolarity_Rising);
 #endif

@@ -304,60 +304,60 @@ void MotorCommutationCCU8(uint8_t motorIndex)
 	switch (motors[motorIndex].inverter.pattern)
 	{
 		case 0:
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0], motors[motorIndex].CCR_dummy);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1], motors[motorIndex].CCR_dummy);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5], motors[motorIndex].period);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, motors[motorIndex].period);
 			break;
 		case 1:
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0], motors[motorIndex].CCR_dummy);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1], motors[motorIndex].CCR_dummy);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3], motors[motorIndex].period);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5], 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, motors[motorIndex].period);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, 0);
 			break;
 		case 2:
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1], motors[motorIndex].period);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2], motors[motorIndex].CCR_dummy);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3], motors[motorIndex].CCR_dummy);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5], 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, motors[motorIndex].period);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, 0);
 			break;
 		case 3:
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2], motors[motorIndex].CCR_dummy);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3], motors[motorIndex].CCR_dummy);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5], motors[motorIndex].period);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, motors[motorIndex].period);
 			break;
 		case 4:
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3], motors[motorIndex].period);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4], motors[motorIndex].CCR_dummy);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5], motors[motorIndex].CCR_dummy);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, motors[motorIndex].period);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, motors[motorIndex].compare);
 			break;
 		case 5:
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1], motors[motorIndex].period);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4], motors[motorIndex].CCR_dummy);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5], motors[motorIndex].CCR_dummy);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, motors[motorIndex].period);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, motors[motorIndex].compare);
 			break;
 		default:
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4], 0);
-			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5], 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel1((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, 0);
+			XMC_CCU8_SLICE_SetTimerCompareMatchChannel2((XMC_CCU8_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, 0);
 			break;
 	}
 
@@ -370,60 +370,60 @@ void MotorCommutationCCU4(uint8_t motorIndex)
 	switch (motors[motorIndex].inverter.pattern)
 	{
 		case 0:
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0], motors[motorIndex].CCR_dummy);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1], motors[motorIndex].CCR_dummy + motors[motorIndex].inverter.deadtime);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5], motors[motorIndex].period);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, motors[motorIndex].compare + motors[motorIndex].inverter.deadtime);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, motors[motorIndex].period);
 			break;
 		case 1:
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0], motors[motorIndex].CCR_dummy);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1], motors[motorIndex].CCR_dummy + motors[motorIndex].inverter.deadtime);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3], motors[motorIndex].period);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5], 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, motors[motorIndex].compare + motors[motorIndex].inverter.deadtime);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, motors[motorIndex].period);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, 0);
 			break;
 		case 2:
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1], motors[motorIndex].period);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2], motors[motorIndex].CCR_dummy);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3], motors[motorIndex].CCR_dummy + motors[motorIndex].inverter.deadtime);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5], 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, motors[motorIndex].period);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, motors[motorIndex].compare + motors[motorIndex].inverter.deadtime);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, 0);
 			break;
 		case 3:
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2], motors[motorIndex].CCR_dummy);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3], motors[motorIndex].CCR_dummy + motors[motorIndex].inverter.deadtime);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5], motors[motorIndex].period);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, motors[motorIndex].compare + motors[motorIndex].inverter.deadtime);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, motors[motorIndex].period);
 			break;
 		case 4:
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3], motors[motorIndex].period);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4], motors[motorIndex].CCR_dummy);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5], motors[motorIndex].CCR_dummy + motors[motorIndex].inverter.deadtime);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, motors[motorIndex].period);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, motors[motorIndex].compare + motors[motorIndex].inverter.deadtime);
 			break;
 		case 5:
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1], motors[motorIndex].period);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4], motors[motorIndex].CCR_dummy);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5], motors[motorIndex].CCR_dummy + motors[motorIndex].inverter.deadtime);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, motors[motorIndex].period);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, motors[motorIndex].compare);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, motors[motorIndex].compare + motors[motorIndex].inverter.deadtime);
 			break;
 		default:
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4], 0);
-			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5], 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[0]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[1]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[2]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[3]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[4]->slice_ptr, 0);
+			XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[motorIndex].inverter.tim[5]->slice_ptr, 0);
 			break;
 	}
 
@@ -441,7 +441,7 @@ void ZerocrossingDetection(uint8_t motorIndex)
 	uint16_t result_v = XMC_VADC_GROUP_GetResult(motors[motorIndex].inverter.adc_group, motors[motorIndex].inverter.phase_channel[1]);
 	uint16_t result_w = XMC_VADC_GROUP_GetResult(motors[motorIndex].inverter.adc_group, motors[motorIndex].inverter.phase_channel[2]);
 
-	if (motors[motorIndex].CCR_dummy < motors[motorIndex].inverter.min_ccr)
+	if (motors[motorIndex].compare < motors[motorIndex].inverter.min_ccr)
 	{
 		motors[motorIndex].inverter.pattern = 0xff;
 		motors[motorIndex].inverter.avg_delay = 300;

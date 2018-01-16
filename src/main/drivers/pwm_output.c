@@ -52,60 +52,15 @@ static void pwmOCConfig(TIM_TypeDef *tim, uint8_t channel, uint16_t value, uint8
 {
 #ifdef XMC4500_F100x1024
 
-	uint32_t* module = NULL;
-	uint8_t isCCU8 = 0;
-
-	switch ((uint32_t)tim)
+	if (tim->isCCU8)
 	{
-		case (uint32_t)CCU40_CC40:
-		case (uint32_t)CCU40_CC41:
-		case (uint32_t)CCU40_CC42:
-		case (uint32_t)CCU40_CC43:
-			module = (uint32_t*)CCU40;
-			break;
-		case (uint32_t)CCU41_CC40:
-		case (uint32_t)CCU41_CC41:
-		case (uint32_t)CCU41_CC42:
-		case (uint32_t)CCU41_CC43:
-			module = (uint32_t*)CCU41;
-			break;
-		case (uint32_t)CCU42_CC40:
-		case (uint32_t)CCU42_CC41:
-		case (uint32_t)CCU42_CC42:
-		case (uint32_t)CCU42_CC43:
-			module = (uint32_t*)CCU43;
-			break;
-		case (uint32_t)CCU43_CC40:
-		case (uint32_t)CCU43_CC41:
-		case (uint32_t)CCU43_CC42:
-		case (uint32_t)CCU43_CC43:
-			module = (uint32_t*)CCU42;
-			break;
-		case (uint32_t)CCU80_CC80:
-		case (uint32_t)CCU80_CC81:
-		case (uint32_t)CCU80_CC82:
-		case (uint32_t)CCU80_CC83:
-			module = (uint32_t*)CCU80;
-			isCCU8 = 1;
-			break;
-		case (uint32_t)CCU81_CC80:
-		case (uint32_t)CCU81_CC81:
-		case (uint32_t)CCU81_CC82:
-		case (uint32_t)CCU81_CC83:
-			module = (uint32_t*)CCU81;
-			isCCU8 = 1;
-			break;
-	}
-
-	if (isCCU8)
-	{
-		XMC_CCU8_SLICE_SetTimerCompareMatch((XMC_CCU8_SLICE_t*)tim, channel, value);
-		XMC_CCU8_EnableShadowTransfer((XMC_CCU8_MODULE_t*)module, 0xFFFF);
+		XMC_CCU8_SLICE_SetTimerCompareMatch((XMC_CCU8_SLICE_t*)tim->slice_ptr, channel, value);
+		XMC_CCU8_EnableShadowTransfer((XMC_CCU8_MODULE_t*)tim->module, 1 << 4*tim->slice_no);
 	}
 	else
 	{
-		XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)tim, value);
-		XMC_CCU4_EnableShadowTransfer((XMC_CCU4_MODULE_t*)module, 0xFFFF);
+		XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)tim->slice_ptr, value);
+		XMC_CCU4_EnableShadowTransfer((XMC_CCU4_MODULE_t*)tim->module, 1 << 4*tim->slice_no);
 	}
 
 #else
@@ -163,7 +118,7 @@ static void pwmOutConfig(pwmOutputPort_t *port, int outIndex, const timerHardwar
     pwmOCConfig(timerHardware->tim, timerHardware->channel, 0,
         inversion ? timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output);
 
-    if (timerHardware->isCCU8)
+    if (timerHardware->tim->isCCU8)
     {
     	XMC_CCU8_SLICE_EVENT_CONFIG_t event_config =
     	{
@@ -171,8 +126,8 @@ static void pwmOutConfig(pwmOutputPort_t *port, int outIndex, const timerHardwar
 			.edge			= XMC_CCU8_SLICE_EVENT_EDGE_SENSITIVITY_RISING_EDGE,
 			.duration		= XMC_CCU8_SLICE_EVENT_FILTER_DISABLED,
     	};
-    	XMC_CCU8_SLICE_ConfigureEvent((XMC_CCU8_SLICE_t*)timerHardware->tim, XMC_CCU8_SLICE_EVENT_0, &event_config);
-    	XMC_CCU8_SLICE_StartConfig((XMC_CCU8_SLICE_t*)timerHardware->tim, XMC_CCU8_SLICE_EVENT_0, XMC_CCU8_SLICE_START_MODE_TIMER_START_CLEAR);
+    	XMC_CCU8_SLICE_ConfigureEvent((XMC_CCU8_SLICE_t*)timerHardware->tim->slice_ptr, XMC_CCU8_SLICE_EVENT_0, &event_config);
+    	XMC_CCU8_SLICE_StartConfig((XMC_CCU8_SLICE_t*)timerHardware->tim->slice_ptr, XMC_CCU8_SLICE_EVENT_0, XMC_CCU8_SLICE_START_MODE_TIMER_START_CLEAR);
 
     	XMC_CCU8_SLICE_DEAD_TIME_CONFIG_t deadtime_config =
     	{
@@ -188,10 +143,8 @@ static void pwmOutConfig(pwmOutputPort_t *port, int outIndex, const timerHardwar
     		.channel2_st_rising_edge_counter   = deadtime,
     		.channel2_st_falling_edge_counter  = deadtime,
     	};
-    	XMC_CCU8_SLICE_DeadTimeInit((XMC_CCU8_SLICE_t*)timerHardware->tim, &deadtime_config);
-
-    	for (uint8_t i=0; i<4; i++)
-    		XMC_CCU8_EnableClock((XMC_CCU8_MODULE_t*)timerHardware->ccu_global, i);
+    	XMC_CCU8_SLICE_DeadTimeInit((XMC_CCU8_SLICE_t*)timerHardware->tim->slice_ptr, &deadtime_config);
+   		XMC_CCU8_EnableClock((XMC_CCU8_MODULE_t*)timerHardware->tim->module, timerHardware->tim->slice_no);
     }
     else
     {
@@ -201,14 +154,13 @@ static void pwmOutConfig(pwmOutputPort_t *port, int outIndex, const timerHardwar
 			.edge			= XMC_CCU4_SLICE_EVENT_EDGE_SENSITIVITY_RISING_EDGE,
 			.duration		= XMC_CCU4_SLICE_EVENT_FILTER_DISABLED,
     	};
-    	XMC_CCU4_SLICE_ConfigureEvent((XMC_CCU4_SLICE_t*)timerHardware->tim, XMC_CCU4_SLICE_EVENT_0, &event_config);
-    	XMC_CCU4_SLICE_StartConfig((XMC_CCU4_SLICE_t*)timerHardware->tim, XMC_CCU4_SLICE_EVENT_0, XMC_CCU4_SLICE_START_MODE_TIMER_START_CLEAR);
+    	XMC_CCU4_SLICE_ConfigureEvent((XMC_CCU4_SLICE_t*)timerHardware->tim->slice_ptr, XMC_CCU4_SLICE_EVENT_0, &event_config);
+    	XMC_CCU4_SLICE_StartConfig((XMC_CCU4_SLICE_t*)timerHardware->tim->slice_ptr, XMC_CCU4_SLICE_EVENT_0, XMC_CCU4_SLICE_START_MODE_TIMER_START_CLEAR);
 
-    	for (uint8_t i=0; i<4; i++)
-    		XMC_CCU4_EnableClock((XMC_CCU4_MODULE_t*)timerHardware->ccu_global, i);
+   		XMC_CCU4_EnableClock((XMC_CCU4_MODULE_t*)timerHardware->tim->module, timerHardware->tim->slice_no);
     }
 
-    port->ccr = &port->CCR_dummy;
+    port->ccr = (timCCR_t*)&port->compare;
 
     port->period = period;
     port->inverter.tim[outIndex] = timerHardware->tim;
@@ -218,11 +170,19 @@ static void pwmOutConfig(pwmOutputPort_t *port, int outIndex, const timerHardwar
 #else
 static void pwmOutConfig(pwmOutputPort_t *port, const timerHardware_t *timerHardware, uint8_t mhz, uint16_t period, uint16_t value, uint8_t inversion)
 {
+#ifdef XMC4500_F100x1024
+    configTimeBase(timerHardware->tim, period, mhz);
+    pwmOCConfig(timerHardware->tim, timerHardware->channel, value,
+    		inversion ? timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output);
+
+    XMC_CCU4_EnableClock((XMC_CCU4_MODULE_t*)timerHardware->tim->module, timerHardware->tim->slice_no);
+    XMC_CCU4_SLICE_StartTimer((XMC_CCU4_SLICE_t*)timerHardware->tim->slice_ptr);
+
+#else
 #if defined(USE_HAL_DRIVER)
     TIM_HandleTypeDef* Handle = timerFindTimerHandle(timerHardware->tim);
     if(Handle == NULL) return;
 #endif
-
     configTimeBase(timerHardware->tim, period, mhz);
     pwmOCConfig(timerHardware->tim, timerHardware->channel, value,
         inversion ? timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output);
@@ -233,50 +193,13 @@ static void pwmOutConfig(pwmOutputPort_t *port, const timerHardware_t *timerHard
     else
         HAL_TIM_PWM_Start(Handle, timerHardware->channel);
     HAL_TIM_Base_Start(Handle);
-#elif defined(XMC4500_F100x1024)
-    uint8_t channel;
-    switch ((int)timerHardware->tim)
-    {
-    	case (int)CCU40_CC40:
-    	case (int)CCU41_CC40:
-    	case (int)CCU42_CC40:
-    	case (int)CCU43_CC40:
-    		channel = 0;
-    		break;
-    	case (int)CCU40_CC41:
-    	case (int)CCU41_CC41:
-    	case (int)CCU42_CC41:
-    	case (int)CCU43_CC41:
-    		channel = 1;
-    		break;
-    	case (int)CCU40_CC42:
-    	case (int)CCU41_CC42:
-    	case (int)CCU42_CC42:
-    	case (int)CCU43_CC42:
-    		channel = 2;
-    		break;
-    	case (int)CCU40_CC43:
-    	case (int)CCU41_CC43:
-    	case (int)CCU42_CC43:
-    	case (int)CCU43_CC43:
-    		channel = 3;
-    		break;
-    	default:
-    		channel = 0;
-    		break;
-    }
-    XMC_CCU4_EnableClock((XMC_CCU4_MODULE_t*)timerHardware->ccu_global, channel);
-    XMC_CCU4_SLICE_StartTimer((XMC_CCU4_SLICE_t*)timerHardware->tim);
 #else
     TIM_CtrlPWMOutputs(timerHardware->tim, ENABLE);
     TIM_Cmd(timerHardware->tim, ENABLE);
 #endif
-
-#ifdef XMC4500_F100x1024
-    port->ccr = &port->CCR_dummy;
-#else
-    port->ccr = timerChCCR(timerHardware);
 #endif
+
+    port->ccr = timerChCCR(timerHardware);
     port->period = period;
     port->tim = timerHardware->tim;
 
@@ -367,40 +290,9 @@ static void pwmCompleteWriteUnused(uint8_t motorCount)
 static void pwmCompleteWriteXMC(uint8_t motorCount)
 {
 #ifndef USE_ONBOARD_ESC
-	XMC_CCU4_MODULE_t* module = NULL;
-
 	for (int index = 0; index < motorCount; index++)
 	{
-		switch ((uint32_t)motors[index].tim)
-		{
-			case (uint32_t)CCU40_CC40:
-			case (uint32_t)CCU40_CC41:
-			case (uint32_t)CCU40_CC42:
-			case (uint32_t)CCU40_CC43:
-				module = CCU40;
-				break;
-			case (uint32_t)CCU41_CC40:
-			case (uint32_t)CCU41_CC41:
-			case (uint32_t)CCU41_CC42:
-			case (uint32_t)CCU41_CC43:
-				module = CCU41;
-				break;
-			case (uint32_t)CCU42_CC40:
-			case (uint32_t)CCU42_CC41:
-			case (uint32_t)CCU42_CC42:
-			case (uint32_t)CCU42_CC43:
-				module = CCU42;
-				break;
-			case (uint32_t)CCU43_CC40:
-			case (uint32_t)CCU43_CC41:
-			case (uint32_t)CCU43_CC42:
-			case (uint32_t)CCU43_CC43:
-				module = CCU43;
-				break;
-		}
-
-		XMC_CCU4_SLICE_SetTimerCompareMatch((XMC_CCU4_SLICE_t*)motors[index].tim, motors[index].CCR_dummy);
-		XMC_CCU4_EnableShadowTransfer(module, 0x1111);
+		XMC_CCU4_EnableShadowTransfer((XMC_CCU4_MODULE_t*)motors[index].tim->module, 1 << 4*motors[index].tim->slice_no);
 	}
 #endif
 }
@@ -535,17 +427,17 @@ void motorDevInit(const motorDevConfig_t *motorConfig, uint16_t idlePulse, uint8
         motors[motorIndex].enabled = true;
     }
 
-	XMC_CCU8_SLICE_SetInterruptNode((XMC_CCU8_SLICE_t*)motors[0].inverter.tim[0], XMC_CCU8_SLICE_IRQ_ID_ONE_MATCH, XMC_CCU8_SLICE_SR_ID_3);
-	XMC_CCU8_SLICE_EnableEvent((XMC_CCU8_SLICE_t*)motors[0].inverter.tim[0], XMC_CCU8_SLICE_IRQ_ID_ONE_MATCH);
+	XMC_CCU8_SLICE_SetInterruptNode((XMC_CCU8_SLICE_t*)motors[0].inverter.tim[0]->slice_ptr, XMC_CCU8_SLICE_IRQ_ID_ONE_MATCH, XMC_CCU8_SLICE_SR_ID_3);
+	XMC_CCU8_SLICE_EnableEvent((XMC_CCU8_SLICE_t*)motors[0].inverter.tim[0]->slice_ptr, XMC_CCU8_SLICE_IRQ_ID_ONE_MATCH);
 
-    XMC_CCU8_SLICE_SetInterruptNode((XMC_CCU8_SLICE_t*)motors[1].inverter.tim[0], XMC_CCU8_SLICE_IRQ_ID_ONE_MATCH, XMC_CCU8_SLICE_SR_ID_3);
-   	XMC_CCU8_SLICE_EnableEvent((XMC_CCU8_SLICE_t*)motors[1].inverter.tim[0], XMC_CCU8_SLICE_IRQ_ID_ONE_MATCH);
+    XMC_CCU8_SLICE_SetInterruptNode((XMC_CCU8_SLICE_t*)motors[1].inverter.tim[0]->slice_ptr, XMC_CCU8_SLICE_IRQ_ID_ONE_MATCH, XMC_CCU8_SLICE_SR_ID_3);
+   	XMC_CCU8_SLICE_EnableEvent((XMC_CCU8_SLICE_t*)motors[1].inverter.tim[0]->slice_ptr, XMC_CCU8_SLICE_IRQ_ID_ONE_MATCH);
 
-   	XMC_CCU4_SLICE_SetInterruptNode((XMC_CCU4_SLICE_t*)motors[2].inverter.tim[0], XMC_CCU4_SLICE_IRQ_ID_ONE_MATCH, XMC_CCU4_SLICE_SR_ID_3);
-   	XMC_CCU4_SLICE_EnableEvent((XMC_CCU4_SLICE_t*)motors[2].inverter.tim[0], XMC_CCU4_SLICE_IRQ_ID_ONE_MATCH);
+   	XMC_CCU4_SLICE_SetInterruptNode((XMC_CCU4_SLICE_t*)motors[2].inverter.tim[0]->slice_ptr, XMC_CCU4_SLICE_IRQ_ID_ONE_MATCH, XMC_CCU4_SLICE_SR_ID_3);
+   	XMC_CCU4_SLICE_EnableEvent((XMC_CCU4_SLICE_t*)motors[2].inverter.tim[0]->slice_ptr, XMC_CCU4_SLICE_IRQ_ID_ONE_MATCH);
 
-   	XMC_CCU4_SLICE_SetInterruptNode((XMC_CCU4_SLICE_t*)motors[3].inverter.tim[0], XMC_CCU4_SLICE_IRQ_ID_ONE_MATCH, XMC_CCU4_SLICE_SR_ID_3);
-   	XMC_CCU4_SLICE_EnableEvent((XMC_CCU4_SLICE_t*)motors[3].inverter.tim[0], XMC_CCU4_SLICE_IRQ_ID_ONE_MATCH);
+   	XMC_CCU4_SLICE_SetInterruptNode((XMC_CCU4_SLICE_t*)motors[3].inverter.tim[0]->slice_ptr, XMC_CCU4_SLICE_IRQ_ID_ONE_MATCH, XMC_CCU4_SLICE_SR_ID_3);
+   	XMC_CCU4_SLICE_EnableEvent((XMC_CCU4_SLICE_t*)motors[3].inverter.tim[0]->slice_ptr, XMC_CCU4_SLICE_IRQ_ID_ONE_MATCH);
 
     XMC_SCU_SetCcuTriggerHigh(XMC_SCU_CCU_TRIGGER_CCU80 |
        		                  XMC_SCU_CCU_TRIGGER_CCU81 |

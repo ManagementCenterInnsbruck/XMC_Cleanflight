@@ -171,6 +171,7 @@ typedef struct {
     volatile timCCR_t *ccr;
 #ifdef USE_ONBOARD_ESC
     pwmInverter_t inverter;
+    uint32_t compare;
 #else
     TIM_TypeDef *tim;
 #endif
@@ -181,7 +182,8 @@ typedef struct {
     IO_t io;
 #endif
 #ifdef XMC4500_F100x1024
-    timCCR_t CCR_dummy;
+    XMC_CCU4_MODULE_t* module;
+    uint8_t channel;
 #endif
 } pwmOutputPort_t;
 

@@ -25,14 +25,9 @@
 #include "drivers/dma.h"
 
 const timerHardware_t timerHardware[USABLE_TIMER_CHANNEL_COUNT] = {
-		//DEF_TIM(tim, chan, global, ccu8, pin, flags, out)
-	    DEF_TIM(CCU40_CC40, CH1, CCU40, 0, P13, TIM_USE_MOTOR, 0),
-		DEF_TIM(CCU40_CC41, CH1, CCU40, 0, P12, TIM_USE_MOTOR, 0),
-		DEF_TIM(CCU40_CC43, CH1, CCU40, 0, P10, TIM_USE_MOTOR, 0),
-		DEF_TIM(CCU40_CC42, CH1, CCU40, 0, P11, TIM_USE_MOTOR, 0),
-	    DEF_TIM(CCU41_CC40, CH1, CCU41, 0, P25, 0, 0),
-		DEF_TIM(CCU41_CC41, CH1, CCU41, 0, P24, 0, 0),
-		DEF_TIM(CCU41_CC42, CH1, CCU41, 0, P23, 0, 0),
-		DEF_TIM(CCU41_CC43, CH1, CCU41, 0, P22, 0, 0),
+	{ .tim = &XMCTimer[0], .tag = IO_TAG(P13), .usageFlags = TIM_USE_MOTOR, .alternateFunction = XMC_GPIO_MODE_OUTPUT_ALT3 },
+	{ .tim = &XMCTimer[1], .tag = IO_TAG(P12), .usageFlags = TIM_USE_MOTOR, .alternateFunction = XMC_GPIO_MODE_OUTPUT_ALT3 },
+	{ .tim = &XMCTimer[3], .tag = IO_TAG(P10), .usageFlags = TIM_USE_MOTOR, .alternateFunction = XMC_GPIO_MODE_OUTPUT_ALT3 },
+	{ .tim = &XMCTimer[2], .tag = IO_TAG(P11), .usageFlags = TIM_USE_MOTOR, .alternateFunction = XMC_GPIO_MODE_OUTPUT_ALT3 },
 };
 
