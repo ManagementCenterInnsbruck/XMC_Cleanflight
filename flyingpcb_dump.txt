@@ -1,7 +1,7 @@
-# dump
+dump
 
 # version
-# Cleanflight / FlyingPCB XMC 2.1.0 Oct 25 2017 / 14:22:05 (1.0)
+# Cleanflight / FlyingPCB 2.1.0 Jan 16 2018 / 17:57:39 (1.0)
 
 # name
 name -
@@ -128,7 +128,6 @@ set gyro_notch1_cutoff = 300
 set gyro_notch2_hz = 200
 set gyro_notch2_cutoff = 100
 set moron_threshold = 48
-set gyro_use_32khz = OFF
 set align_acc = DEFAULT
 set acc_hardware = AUTO
 set acc_lpf_hz = 10
@@ -140,6 +139,11 @@ set mag_declination = 0
 set magzero_x = 0
 set magzero_y = 0
 set magzero_z = 0
+set baro_hardware = OFF
+set baro_tab_size = 20
+set baro_noise_lpf = 600
+set baro_cf_vel = 968
+set baro_cf_alt = 987
 set mid_rc = 1500
 set min_check = 1200
 set max_check = 1800
@@ -205,6 +209,7 @@ set small_angle = 25
 set auto_disarm_delay = 5
 set disarm_kill_switch = ON
 set gyro_cal_on_first_arm = OFF
+set fixedwing_althold_reversed = OFF
 set alt_hold_deadband = 100
 set alt_hold_fast_change = OFF
 set deadband = 0
@@ -239,14 +244,14 @@ set iterm_windup = 50
 set yaw_lowpass = 0
 set pidsum_limit = 500
 set pidsum_limit_yaw = 400
-set p_pitch = 70
-set i_pitch = 50
-set d_pitch = 35
-set p_roll = 70
-set i_roll = 40
-set d_roll = 30
-set p_yaw = 70
-set i_yaw = 45
+set p_pitch = 35
+set i_pitch = 25
+set d_pitch = 18
+set p_roll = 35
+set i_roll = 20
+set d_roll = 15
+set p_yaw = 35
+set i_yaw = 22
 set d_yaw = 20
 set p_alt = 50
 set i_alt = 0
