@@ -43,7 +43,7 @@
 #include "drivers/serial_uart_impl.h"
 
 static void usartConfigurePinInversion(uartPort_t *uartPort) {
-#if !defined(USE_INVERTER) && !defined(STM32F303xC)
+#if !defined(USE_INVERTER) && !defined(STM32F303xC) && !defined(XMC4500_F100x1024)
     UNUSED(uartPort);
 #else
     bool inverted = uartPort->port.options & SERIAL_INVERTED;
@@ -67,6 +67,20 @@ static void usartConfigurePinInversion(uartPort_t *uartPort) {
 
     USART_InvPinCmd(uartPort->USARTx, inversionPins, inverted ? ENABLE : DISABLE);
 #endif
+
+#ifdef XMC4500_F100x1024
+
+    if (inverted){
+		if (uartPort->port.mode & MODE_TX) {
+			XMC_USIC_CH_SetDataOutputMode((XMC_USIC_CH_t*)uartPort->USARTx, XMC_USIC_CH_DATA_OUTPUT_MODE_INVERTED);
+		}
+		if (uartPort->port.mode & MODE_RX) {
+			XMC_USIC_CH_EnableInputInversion((XMC_USIC_CH_t*)uartPort->USARTx, XMC_USIC_CH_INPUT_DX0);
+		}
+    }
+
+#endif
+
 #endif
 }
 
@@ -118,11 +132,11 @@ void uartReconfigure(uartPort_t *uartPort)
     XMC_UART_CH_CONFIG_t uart_config =
     {
     	.baudrate 		= uartPort->port.baudRate,
-		.data_bits		= 8,
-		.frame_length 	= 8,
+		.data_bits		= (uartPort->port.options & SERIAL_PARITY_EVEN) ? 9 : 8,			//XMC4500 errata parity bit has to be set by software
+		.frame_length 	= (uartPort->port.options & SERIAL_PARITY_EVEN) ? 9 : 8,			//XMC4500 errata parity bit has to be set by software
 		.stop_bits		= (uartPort->port.options & SERIAL_STOPBITS_2) ? 2 : 1,
 		.oversampling	= 16,
-		.parity_mode	= (uartPort->port.options & SERIAL_PARITY_EVEN) ? XMC_USIC_CH_PARITY_MODE_EVEN : XMC_USIC_CH_PARITY_MODE_NONE,
+		.parity_mode	= XMC_USIC_CH_PARITY_MODE_NONE,
     };
     XMC_UART_CH_Init((XMC_USIC_CH_t*)uartPort->USARTx, &uart_config);
     XMC_USIC_CH_SetInputSource((XMC_USIC_CH_t*)uartPort->USARTx, XMC_USIC_CH_INPUT_DX0, uartPort->input_source);
