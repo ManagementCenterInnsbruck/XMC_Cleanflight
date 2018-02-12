@@ -339,7 +339,7 @@ void USART2_IRQHandler(void)
 #ifdef USE_UART3
 // USART3 Rx/Tx IRQ Handler
 #ifdef XMC4500_F100x1024
-#if UART3_USIC == U0C0
+#if defined(UART3_USIC) && UART3_USIC == U0C0
 void USIC0_0_IRQHandler()
 #else
 void USIC2_2_IRQHandler()
@@ -349,7 +349,7 @@ void USIC2_2_IRQHandler()
 	uartTxIrqHandler(s);
 }
 
-#if UART3_USIC == U0C0
+#if defined (UART3_USIC) && UART3_USIC == U0C0
 void USIC0_1_IRQHandler()
 #else
 void USIC2_3_IRQHandler()
