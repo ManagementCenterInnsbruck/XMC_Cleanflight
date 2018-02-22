@@ -164,12 +164,18 @@
 #define I2C1_SDA P50
 #endif
 
-
 #ifndef I2C2_SCL
 #define I2C2_SCL P24
 #endif
 #ifndef I2C2_SDA
 #define I2C2_SDA P25
+#endif
+
+#ifndef I2C3_SCL
+#define I2C3_SCL P36
+#endif
+#ifndef I2C3_SDA
+#define I2C3_SDA P35
 #endif
 #endif
 

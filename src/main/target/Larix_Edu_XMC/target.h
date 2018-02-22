@@ -29,7 +29,9 @@
 
 #define USE_I2C
 #define USE_I2C_DEVICE_1
+#define USE_I2C_DEVICE_3
 #define I2C_DEVICE 				(I2CDEV_1)
+#define BARO_I2C_INSTANCE 		(I2CDEV_3)
 
 #define GYRO
 #define USE_GYRO_MPU6500
@@ -40,6 +42,10 @@
 #define MAG
 #define USE_MPU9250_MAG
 #define USE_MAG_AK8963
+
+#define BARO
+#define USE_BARO_DPS310
+#define USE_BARO_DPS310_BACKGROUND
 
 #define USE_ADC
 #define VBAT_ADC_PIN            P147

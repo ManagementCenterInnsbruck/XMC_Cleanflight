@@ -64,6 +64,16 @@ const i2cHardware_t i2cHardware[I2CDEV_COUNT] = {
         .sdaAltFunction = {0x00, XMC_GPIO_MODE_OUTPUT_ALT2, 0x00, XMC_GPIO_MODE_OUTPUT_ALT2}
     },
 #endif
+#ifdef USE_I2C_DEVICE_3
+	{
+		.device = I2CDEV_3,
+		.reg = USIC2_CH1,
+		.sclPins = { DEFIO_TAG_E(P42), DEFIO_TAG_E(P36) },
+		.sdaPins = { DEFIO_TAG_E(P35) },
+		.sclAltFunction = { XMC_GPIO_MODE_OUTPUT_ALT4, XMC_GPIO_MODE_OUTPUT_ALT1 },
+        .sdaAltFunction = { XMC_GPIO_MODE_OUTPUT_ALT1, 0x00 }
+	}
+#endif
 };
 
 i2cDevice_t i2cDevice[I2CDEV_COUNT];
