@@ -66,10 +66,8 @@ ENTRY(Reset_Handler)
 
 MEMORY
 {
-    FLASH_0_cached(RX) : ORIGIN = 0x08000000, LENGTH = 0x010000
-    FLASH_0_uncached(RX) : ORIGIN = 0x0C000000, LENGTH = 0x010000
-    FLASH_1_cached(RX) : ORIGIN = 0x08020000, LENGTH = 0x0E0000
-    FLASH_1_uncached(RX) : ORIGIN = 0x0C020000, LENGTH = 0x0E0000
+    FLASH_1_cached(RX) : ORIGIN = 0x08000000, LENGTH = 0x0C0000
+    FLASH_1_uncached(RX) : ORIGIN = 0x0C000000, LENGTH = 0x0C0000
     PSRAM_1(!RX) : ORIGIN = 0x10000000, LENGTH = 0x10000
     DSRAM_1_system(!RX) : ORIGIN = 0x20000000, LENGTH = 0x10000
     DSRAM_2_comm(!RX) : ORIGIN = 0x30000000, LENGTH = 0x8000
@@ -78,27 +76,17 @@ MEMORY
 stack_size = DEFINED(stack_size) ? stack_size : 2048;
 no_init_size = 64;
 
-/* Base address where the config is stored. */
-__config_start = 0x0C010000;
-__config_end =   0x0C010000 + 0x010000;
-
-REGION_ALIAS("STACKRAM", PSRAM_1)
-
-/* Highest address of the user mode stack */
-_estack = ORIGIN(STACKRAM) + LENGTH(STACKRAM);    /* end of RAM */
+__config_start = 0x0C0C0000;
+__config_end =   0x0C0C0000 + 256k;
 
 /* Generate a link error if heap and stack don't fit into RAM */
-_Min_Heap_Size = 0;      /* required amount of heap  */
-_Min_Stack_Size = 0x800; /* required amount of stack */
+_Min_Stack_Size = stack_size;
+
+/* Highest address of the user mode stack */
+_estack = ORIGIN(PSRAM_1) + LENGTH(PSRAM_1);    /* end of RAM */
 
 SECTIONS
 {
-
-    .reset :
-    {
-        KEEP(*(.reset));
-    } > FLASH_0_cached AT > FLASH_0_uncached
-
     /* TEXT section */
 
     .text :
@@ -131,6 +119,21 @@ SECTIONS
         *(vtable)        
     
         . = ALIGN(4);        
+    } > FLASH_1_cached AT > FLASH_1_uncached
+
+    .pg_registry :
+    {
+        PROVIDE_HIDDEN (__pg_registry_start = .);
+        KEEP (*(.pg_registry))
+        KEEP (*(SORT(.pg_registry.*)))
+        PROVIDE_HIDDEN (__pg_registry_end = .);
+    } > FLASH_1_cached AT > FLASH_1_uncached
+    
+    .pg_resetdata :
+    {
+        PROVIDE_HIDDEN (__pg_resetdata_start = .);
+        KEEP (*(.pg_resetdata))
+        PROVIDE_HIDDEN (__pg_resetdata_end = .);
     } > FLASH_1_cached AT > FLASH_1_uncached
 
     .eh_frame_hdr : ALIGN (4)
@@ -202,20 +205,6 @@ SECTIONS
         Heap_Bank3_Start = .;
     } > PSRAM_1
     __bss3_size = __bss3_end - __bss3_start;
-    
-    .pg_registry :
-    {
-        PROVIDE_HIDDEN (__pg_registry_start = .);
-        KEEP (*(.pg_registry))
-        KEEP (*(SORT(.pg_registry.*)))
-        PROVIDE_HIDDEN (__pg_registry_end = .);
-    } > FLASH_1_cached AT > FLASH_1_uncached
-    .pg_resetdata :
-    {
-        PROVIDE_HIDDEN (__pg_resetdata_start = .);
-        KEEP (*(.pg_resetdata))
-        PROVIDE_HIDDEN (__pg_resetdata_end = .);
-    } > FLASH_1_cached AT > FLASH_1_uncached
     
     /* Standard DATA and user defined DATA/BSS/CONST sections */
     .data : 
