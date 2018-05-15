@@ -26,9 +26,9 @@
 
 const timerHardware_t timerHardware[USABLE_TIMER_CHANNEL_COUNT] =
 {
-	{ .tim = &XMCTimer[3], .tag = IO_TAG(P10), .usageFlags = TIM_USE_MOTOR, .alternateFunction = XMC_GPIO_MODE_OUTPUT_ALT3 },
 	{ .tim = &XMCTimer[2], .tag = IO_TAG(P11), .usageFlags = TIM_USE_MOTOR, .alternateFunction = XMC_GPIO_MODE_OUTPUT_ALT3 },
-	{ .tim = &XMCTimer[0], .tag = IO_TAG(P13), .usageFlags = TIM_USE_MOTOR, .alternateFunction = XMC_GPIO_MODE_OUTPUT_ALT3 },
 	{ .tim = &XMCTimer[1], .tag = IO_TAG(P12), .usageFlags = TIM_USE_MOTOR, .alternateFunction = XMC_GPIO_MODE_OUTPUT_ALT3 },
+	{ .tim = &XMCTimer[3], .tag = IO_TAG(P10), .usageFlags = TIM_USE_MOTOR, .alternateFunction = XMC_GPIO_MODE_OUTPUT_ALT3 },
+	{ .tim = &XMCTimer[0], .tag = IO_TAG(P13), .usageFlags = TIM_USE_MOTOR, .alternateFunction = XMC_GPIO_MODE_OUTPUT_ALT3 },
 };
 
